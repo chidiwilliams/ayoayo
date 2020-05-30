@@ -5,7 +5,13 @@ const readline = require('readline').createInterface({
   output: process.stdout,
 });
 
-readline.write(`This is Ayoayo. Let's play!
+readline.write(` █████  ██    ██  ██████   █████  ██    ██  ██████ 
+██   ██  ██  ██  ██    ██ ██   ██  ██  ██  ██    ██ 
+███████   ████   ██    ██ ███████   ████   ██    ██ 
+██   ██    ██    ██    ██ ██   ██    ██    ██    ██ 
+██   ██    ██     ██████  ██   ██    ██     ██████  
+                                                   
+Let's play!
 To begin, enter the column number for the cell you wish to pick from (1-6).`);
 
 const ayoayo = new Ayoayo();
