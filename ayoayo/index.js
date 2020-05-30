@@ -77,6 +77,10 @@ Ayoayo.prototype.checkGameOver = function checkGameOver() {
   return true;
 };
 
+Ayoayo.prototype.cellHasSeeds = function cellHasSeeds(cell) {
+  return this.board[this.nextPlayer][cell] > 0;
+};
+
 // Returns the next position moving counter-clockwise from the given row and cell
 Ayoayo.next = function next(row, cell) {
   if (row == 0) {
