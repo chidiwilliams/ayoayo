@@ -28,5 +28,6 @@ describe('Ayoayo', function () {
       [0, 1, 1, 0, 1, 1],
     ]);
     assert.deepEqual(ayoayo.captured, [24, 20]);
+    assert.equal(ayoayo.isGameOver, true)
   });
 });

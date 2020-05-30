@@ -5,6 +5,7 @@ function Ayoayo() {
   ];
   this.captured = [0, 0];
   this.nextPlayer = 0;
+  this.isGameOver = false;
 }
 
 Ayoayo.NUM_COLUMNS = 6;
@@ -48,6 +49,17 @@ Ayoayo.prototype.play = function play(cell) {
 
   // Move to next player by toggling
   this.nextPlayer = this.nextPlayer == 0 ? 1 : 0;
+  this.isGameOver = this.checkGameOver();
+};
+
+Ayoayo.prototype.checkGameOver = function checkGameOver() {
+  const nextPlayerCells = this.board[this.nextPlayer];
+  for (let i = 0; i < nextPlayerCells.length; i++) {
+    if (nextPlayerCells[i] != 0) {
+      return false;
+    }
+  }
+  return true;
 };
 
 // Returns the next position moving counter-clockwise from the given row and cell
