@@ -6,11 +6,16 @@ function Ayoayo() {
   this.captured = [0, 0];
   this.nextPlayer = 0;
   this.isGameOver = false;
+  this.winner = null;
 }
 
 Ayoayo.NUM_COLUMNS = 6;
 
 Ayoayo.prototype.play = function play(cell) {
+  if (this.isGameOver) {
+    throw new Error('The game is over');
+  }
+
   const numSeedsInCell = this.board[this.nextPlayer][cell];
   if (numSeedsInCell === 0) {
     throw new Error('Cell has no seeds');
@@ -21,26 +26,32 @@ Ayoayo.prototype.play = function play(cell) {
   this.board[this.nextPlayer][cell] = 0;
 
   let [nextPositionRow, nextPositionCell] = Ayoayo.next(this.nextPlayer, cell);
+  // Terminate when all seeds have been dropped and
+  // no continuing pickup was done
   while (numSeedsInHand > 0) {
+    // Drop one seed in next cell
     this.board[nextPositionRow][nextPositionCell]++;
     numSeedsInHand--;
 
+    // If the cell has four seeds, capture. If this is the last seed in hand,
+    // give to the current player. Else, give to the owner of the row.
     if (this.board[nextPositionRow][nextPositionCell] == 4) {
       const capturer = numSeedsInHand == 0 ? this.nextPlayer : nextPositionRow;
       this.captured[capturer] += 4;
       this.board[nextPositionRow][nextPositionCell] = 0;
     }
 
-    // if last seed in hand, and lands on non-empty, break
+    // If this is the last seed in hand and the cell was not originally empty,
+    // pickup the seeds in the cell.
     if (
       numSeedsInHand == 0 &&
       this.board[nextPositionRow][nextPositionCell] > 1
     ) {
-      // pickup this cell again
       numSeedsInHand = this.board[nextPositionRow][nextPositionCell];
       this.board[nextPositionRow][nextPositionCell] = 0;
     }
 
+    // Move to next position
     [nextPositionRow, nextPositionCell] = Ayoayo.next(
       nextPositionRow,
       nextPositionCell,
@@ -50,8 +61,12 @@ Ayoayo.prototype.play = function play(cell) {
   // Move to next player by toggling
   this.nextPlayer = this.nextPlayer == 0 ? 1 : 0;
   this.isGameOver = this.checkGameOver();
+  if (this.isGameOver) {
+    this.winner = this.captured[0] > this.captured[1] ? 0 : 1;
+  }
 };
 
+// Returns true if all the cells belonging to the next player are empty
 Ayoayo.prototype.checkGameOver = function checkGameOver() {
   const nextPlayerCells = this.board[this.nextPlayer];
   for (let i = 0; i < nextPlayerCells.length; i++) {
