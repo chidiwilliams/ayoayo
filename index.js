@@ -4,28 +4,28 @@ function Ayoayo() {
     [4, 4, 4, 4, 4, 4],
   ];
   this.captured = [0, 0];
+  this.nextPlayer = 0;
 }
 
 Ayoayo.NUM_COLUMNS = 6;
 
-// TODO: Add turns
-Ayoayo.prototype.play = function play(player, cell) {
-  const numSeedsInCell = this.board[player][cell];
+Ayoayo.prototype.play = function play(cell) {
+  const numSeedsInCell = this.board[this.nextPlayer][cell];
   if (numSeedsInCell === 0) {
     throw new Error('Cell has no seeds');
   }
 
   // Pickup seeds
   let numSeedsInHand = numSeedsInCell;
-  // Remove seeds from pickup position
-  this.board[player][cell] = 0;
-  let [nextPositionRow, nextPositionCell] = Ayoayo.next(player, cell);
+  this.board[this.nextPlayer][cell] = 0;
+
+  let [nextPositionRow, nextPositionCell] = Ayoayo.next(this.nextPlayer, cell);
   while (numSeedsInHand > 0) {
     this.board[nextPositionRow][nextPositionCell]++;
     numSeedsInHand--;
 
     if (this.board[nextPositionRow][nextPositionCell] == 4) {
-      const capturer = numSeedsInHand == 0 ? player : nextPositionRow;
+      const capturer = numSeedsInHand == 0 ? this.nextPlayer : nextPositionRow;
       this.captured[capturer] += 4;
       this.board[nextPositionRow][nextPositionCell] = 0;
     }
@@ -45,8 +45,12 @@ Ayoayo.prototype.play = function play(player, cell) {
       nextPositionCell,
     );
   }
+
+  // Move to next player by toggling
+  this.nextPlayer = this.nextPlayer == 0 ? 1 : 0;
 };
 
+// Returns the next position moving counter-clockwise from the given row and cell
 Ayoayo.next = function next(row, cell) {
   if (row == 0) {
     if (cell == 0) {
