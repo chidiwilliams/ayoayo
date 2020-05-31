@@ -7,7 +7,7 @@
     "test": "mocha *.test.js"
   },
   "author": "Chidi Williams",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "mocha": "^7.2.0"
