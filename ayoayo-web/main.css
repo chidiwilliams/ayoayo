@@ -30,7 +30,7 @@ header {
   height: 75px;
 }
 
-header .separator {
+.separator {
   flex: 1;
 }
 
@@ -93,13 +93,17 @@ button {
   color: #ffffff;
 }
 
+.side.disabled .pit {
+  cursor: not-allowed;
+}
+
 .pit .pit-summary {
   top: 0;
   width: 90px;
   height: 90px;
   position: absolute;
   z-index: 1;
-  background: #f39c1299;
+  background: #d3540099;
   line-height: 90px;
   font-size: 30px;
   font-weight: bold;
@@ -130,8 +134,20 @@ button {
   display: none;
 }
 
+.player .turn-badge {
+  font-size: 14px;
+  font-style: italic;
+  line-height: 12px;
+  height: 14px;
+  margin: 3.5px 10px;
+  position: absolute;
+  font-weight: 400;
+}
+
 .player .player-name {
   height: 25px;
+  display: flex;
+  align-items: center;
 }
 
 .player .captured {

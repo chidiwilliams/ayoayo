@@ -6,6 +6,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   const sides = document.querySelectorAll('.side');
   const players = document.querySelectorAll('.player');
   const noGamePadding = document.querySelector('.no-game-padding');
+  const turnBadges = document.querySelectorAll('.turn-badge');
 
   newGameButton.addEventListener('click', onClickNewGame);
   document.querySelectorAll('.pit').forEach((pit) => {
@@ -15,10 +16,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     pit.addEventListener('blur', onMouseLeavePit);
   });
 
-  const seeds = document.querySelectorAll('.seed');
-  seeds.forEach((seed) => {
-    styleSeed(seed);
-  });
+  initializeSeeds();
 
   function onClickNewGame() {
     game = new Ayoayo();
@@ -26,6 +24,8 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       player.style.display = 'block';
     });
     noGamePadding.style.display = 'none';
+
+    updateTurn();
 
     game.board.forEach((row, rowIndex) => {
       row.forEach((cellCount, cellIndex) => {
@@ -49,6 +49,27 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     });
   }
 
+  function updateTurn() {
+    const nextPlayer = game.nextPlayer;
+    const otherPlayer = game.nextPlayer == 0 ? 1 : 0;
+
+    turnBadges.item(nextPlayer).style.display = 'inline-block';
+    turnBadges.item(otherPlayer).style.display = 'none';
+
+    sides.item(nextPlayer).classList.remove('disabled');
+    sides.item(otherPlayer).classList.add('disabled');
+
+    const nextPlayerPits = sides.item(nextPlayer).querySelectorAll('.pit');
+    nextPlayerPits.forEach((pit) => {
+      pit.removeAttribute('disabled');
+    });
+
+    const otherPlayerPits = sides.item(otherPlayer).querySelectorAll('.pit');
+    otherPlayerPits.forEach((pit) => {
+      pit.setAttribute('disabled', 'true');
+    });
+  }
+
   function styleSeed(seed) {
     const r = Math.round(Math.random() * 360);
     const x = Math.round(Math.random() * 40) - 20;
@@ -68,5 +89,12 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     if (summary) {
       summary.style.opacity = '0%';
     }
+  }
+
+  function initializeSeeds() {
+    const seeds = document.querySelectorAll('.seed');
+    seeds.forEach((seed) => {
+      styleSeed(seed);
+    });
   }
 })();
