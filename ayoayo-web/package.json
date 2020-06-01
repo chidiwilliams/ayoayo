@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "parcel": "^1.12.4"
+  },
+  "dependencies": {
+    "@chidiwilliams/ayoayo": "0.0.1"
   }
 }

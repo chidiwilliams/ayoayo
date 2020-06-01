@@ -21,20 +21,52 @@ body {
   color: #ffffff;
 }
 
+header {
+  display: flex;
+  min-width: 720px;
+  width: 720px;
+  margin: 60px auto;
+  align-items: center;
+  height: 75px;
+}
+
+header .separator {
+  flex: 1;
+}
+
 h1 {
-  margin-top: 75px;
-  text-align: center;
-  margin-bottom: 120px;
   font-weight: 200;
   font-size: 60px;
   letter-spacing: 20px;
-  min-width: 720px;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+.controls button {
+  font-size: 14px;
+  background: none;
+  color: #ffffff;
+  border: solid 2px #ffffff;
+  padding: 10px 20px;
+  border-radius: 30px;
+}
+
+.no-game-padding {
+  height: 105px;
+}
+
+.game {
+  width: 720px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .board {
   display: flex;
-  width: 720px;
-  margin: auto;
   flex-direction: column;
 }
 
@@ -54,9 +86,29 @@ h1 {
   border-radius: 45px;
   background: var(--secondary-color);
   margin: 0 8px;
-  cursor: pointer;
   overflow: hidden;
   position: relative;
+  border: 0;
+  padding: 0;
+  color: #ffffff;
+}
+
+.pit .pit-summary {
+  top: 0;
+  width: 90px;
+  height: 90px;
+  position: absolute;
+  z-index: 1;
+  background: #f39c1299;
+  line-height: 90px;
+  font-size: 30px;
+  font-weight: bold;
+  opacity: 0%;
+  -webkit-transition: all 0.3s ease-in;
+  -moz-transition: all 0.3s ease-in;
+  -ms-transition: all 0.3s ease-in;
+  -o-transition: all 0.3s ease-in;
+  transition: all 0.3s ease-in;
 }
 
 .seed {
@@ -68,4 +120,20 @@ h1 {
   position: absolute;
   top: calc(45px - 7.5px);
   left: calc(45px - 15px);
+}
+
+.player {
+  margin: 5px 0;
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  display: none;
+}
+
+.player .player-name {
+  height: 25px;
+}
+
+.player .captured {
+  height: 70px;
 }
