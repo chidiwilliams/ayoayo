@@ -68,6 +68,7 @@ button {
 .board {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .side {
@@ -80,7 +81,8 @@ button {
   justify-content: center;
 }
 
-.pit {
+.pit,
+.hand {
   width: 90px;
   height: 90px;
   border-radius: 45px;
@@ -152,4 +154,13 @@ button {
 
 .player .captured {
   height: 70px;
+}
+
+.hand {
+  position: absolute;
+  top: 135px;
+  left: 42px;
+  background: none;
+  pointer-events: none;
+  z-index: 2;
 }

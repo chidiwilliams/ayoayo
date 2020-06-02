@@ -1,4 +1,4 @@
-const Ayoayo = require('@chidiwilliams/ayoayo');
+const Ayoayo = require('../ayoayo');
 
 (function () {
   let game;
@@ -7,19 +7,28 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   const players = document.querySelectorAll('.player');
   const noGamePadding = document.querySelector('.no-game-padding');
   const turnBadges = document.querySelectorAll('.turn-badge');
+  const hand = document.querySelector('.hand');
+  let currentEvent;
+  let eventQueue = [];
 
   newGameButton.addEventListener('click', onClickNewGame);
-  document.querySelectorAll('.pit').forEach((pit) => {
+  document.querySelectorAll('.side .pit').forEach((pit) => {
     pit.addEventListener('mouseenter', onMouseEnterPit);
     pit.addEventListener('focus', onMouseEnterPit);
     pit.addEventListener('mouseleave', onMouseLeavePit);
     pit.addEventListener('blur', onMouseLeavePit);
+    pit.addEventListener('click', onClickPit);
   });
 
   initializeSeeds();
 
   function onClickNewGame() {
     game = new Ayoayo();
+    game.on(Ayoayo.events.PICKUP_SEEDS, onPickupSeeds);
+    game.on(Ayoayo.events.MOVE_TO, onMoveTo);
+    game.on(Ayoayo.events.DROP_SEED, onDropSeed);
+    game.on(Ayoayo.events.END_TURN, onEndTurn);
+
     players.forEach((player) => {
       player.style.display = 'block';
     });
@@ -47,6 +56,14 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
         pit.appendChild(summary);
       });
     });
+
+    const seedsInHand = hand.querySelectorAll('.seed');
+    seedsInHand.forEach((seed) => {
+      hand.removeChild(seed);
+    });
+
+    currentEvent = null;
+    eventQueue = [];
   }
 
   function updateTurn() {
@@ -58,16 +75,6 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
     sides.item(nextPlayer).classList.remove('disabled');
     sides.item(otherPlayer).classList.add('disabled');
-
-    const nextPlayerPits = sides.item(nextPlayer).querySelectorAll('.pit');
-    nextPlayerPits.forEach((pit) => {
-      pit.removeAttribute('disabled');
-    });
-
-    const otherPlayerPits = sides.item(otherPlayer).querySelectorAll('.pit');
-    otherPlayerPits.forEach((pit) => {
-      pit.setAttribute('disabled', 'true');
-    });
   }
 
   function styleSeed(seed) {
@@ -96,5 +103,114 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     seeds.forEach((seed) => {
       styleSeed(seed);
     });
+  }
+
+  function onClickPit(evt) {
+    const sideElement = evt.currentTarget.parentElement;
+    if (game && !sideElement.classList.contains('disabled')) {
+      const classList = evt.currentTarget.classList.toString().split(' ');
+      const idxClassName = classList.find((className) =>
+        className.includes('pit-'),
+      );
+      const cellIndex = idxClassName[4] - 1;
+      game.play(cellIndex);
+    }
+  }
+
+  function onPickupSeeds(...args) {
+    eventQueue.push({ type: Ayoayo.events.PICKUP_SEEDS, args });
+  }
+
+  function onMoveTo(...args) {
+    eventQueue.push({ type: Ayoayo.events.MOVE_TO, args });
+  }
+
+  function onDropSeed(...args) {
+    eventQueue.push({ type: Ayoayo.events.DROP_SEED, args });
+  }
+
+  function onEndTurn(...args) {
+    eventQueue.push({ type: Ayoayo.events.END_TURN, args });
+    requestAnimationFrame(handleEventQueue);
+  }
+
+  const eventDurations = {
+    [Ayoayo.events.PICKUP_SEEDS]: 250,
+    [Ayoayo.events.MOVE_TO]: 250,
+  };
+
+  function handleEventQueue(time) {
+    if (!currentEvent) {
+      currentEvent = eventQueue.shift();
+      if (!currentEvent) {
+        requestAnimationFrame(handleEventQueue);
+        return;
+      }
+
+      currentEvent.start = time;
+      console.log(currentEvent, time);
+      requestAnimationFrame(handleEventQueue);
+      return;
+    }
+
+    const fractionDone =
+      (time - currentEvent.start) / (eventDurations[currentEvent.type] || 250);
+
+    if (fractionDone > 1) {
+      currentEvent = null;
+      requestAnimationFrame(handleEventQueue);
+      return;
+    }
+
+    switch (currentEvent.type) {
+      case Ayoayo.events.PICKUP_SEEDS:
+        handlePickupSeedsEvent(currentEvent, fractionDone);
+        break;
+      case Ayoayo.events.MOVE_TO:
+        handleMoveToEvent(currentEvent, fractionDone);
+        break;
+      case Ayoayo.events.DROP_SEED:
+        handleDropSeedEvent(currentEvent, fractionDone);
+        break;
+      default:
+        break;
+    }
+
+    requestAnimationFrame(handleEventQueue);
+  }
+
+  function handPositionByColumn(column) {
+    return 42 + column * 106;
+  }
+
+  function handlePickupSeedsEvent(event, fractionDone) {
+    const [row, column] = event.args;
+    hand.style.left = `${handPositionByColumn(column)}px`;
+    hand.style.top = `${45 + fractionDone * 90}px`;
+
+    const pit = document.querySelector(`.side-${row + 1} .pit-${column + 1}`);
+    const seeds = pit.querySelectorAll(`.seed`);
+
+    if (seeds.length) {
+      seeds.forEach((seed) => {
+        pit.removeChild(seed);
+        hand.appendChild(seed);
+      });
+      pit.querySelector('.pit-summary').textContent = '0';
+    }
+  }
+
+  function handleMoveToEvent(event, fractionDone) {
+    const [[, fromColumn], [, toColumn]] = event.args;
+    const fromColumnHandPosition = handPositionByColumn(fromColumn);
+    const toColumnHandPosition = handPositionByColumn(toColumn);
+    const newHandPosition =
+      fromColumnHandPosition +
+      fractionDone * (toColumnHandPosition - fromColumnHandPosition);
+    hand.style.left = `${newHandPosition}px`;
+  }
+
+  function handleDropSeedEvent(event, fractionDone) {
+    console.log('dropping seed', event, fractionDone);
   }
 })();
