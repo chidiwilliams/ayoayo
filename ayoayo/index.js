@@ -1,3 +1,6 @@
+const util = require('util');
+const events = require('events');
+
 function Ayoayo() {
   this.board = [
     [4, 4, 4, 4, 4, 4],
@@ -11,6 +14,18 @@ function Ayoayo() {
 
 Ayoayo.NUM_COLUMNS = 6;
 
+Ayoayo.events = {
+  GAME_OVER: 'game_over',
+  DROP_SEED: 'drop_seed',
+  SWITCH_TURN: 'switch_turn',
+  MOVE_TO: 'move_to',
+  PICKUP_SEEDS: 'pickup_seeds',
+  CAPTURE: 'capture',
+  END_TURN: 'end_turn',
+};
+
+util.inherits(Ayoayo, events.EventEmitter);
+
 Ayoayo.prototype.play = function play(cell) {
   if (this.isGameOver) {
     throw new Error('The game is over');
@@ -21,24 +36,24 @@ Ayoayo.prototype.play = function play(cell) {
     throw new Error('Cell has no seeds');
   }
 
-  // Pickup seeds
-  let numSeedsInHand = numSeedsInCell;
-  this.board[this.nextPlayer][cell] = 0;
+  let numSeedsInHand = this.pickupSeeds(this.nextPlayer, cell);
 
-  let [nextPositionRow, nextPositionCell] = Ayoayo.next(this.nextPlayer, cell);
+  let [nextPositionRow, nextPositionCell] = this.moveToNextPosition(
+    this.nextPlayer,
+    cell,
+  );
   // Terminate when all seeds have been dropped and
   // no continuing pickup was done
   while (numSeedsInHand > 0) {
     // Drop one seed in next cell
     this.board[nextPositionRow][nextPositionCell]++;
     numSeedsInHand--;
+    this.emit(Ayoayo.events.DROP_SEED, nextPositionRow, nextPositionCell);
 
     // If the cell has four seeds, capture. If this is the last seed in hand,
     // give to the current player. Else, give to the owner of the row.
     if (this.board[nextPositionRow][nextPositionCell] == 4) {
-      const capturer = numSeedsInHand == 0 ? this.nextPlayer : nextPositionRow;
-      this.captured[capturer] += 4;
-      this.board[nextPositionRow][nextPositionCell] = 0;
+      this.captureCell(numSeedsInHand, nextPositionRow, nextPositionCell);
     }
 
     // If this is the last seed in hand and the cell was not originally empty,
@@ -47,12 +62,11 @@ Ayoayo.prototype.play = function play(cell) {
       numSeedsInHand == 0 &&
       this.board[nextPositionRow][nextPositionCell] > 1
     ) {
-      numSeedsInHand = this.board[nextPositionRow][nextPositionCell];
-      this.board[nextPositionRow][nextPositionCell] = 0;
+      numSeedsInHand = this.pickupSeeds(nextPositionRow, nextPositionCell);
     }
 
     // Move to next position
-    [nextPositionRow, nextPositionCell] = Ayoayo.next(
+    [nextPositionRow, nextPositionCell] = this.moveToNextPosition(
       nextPositionRow,
       nextPositionCell,
     );
@@ -60,10 +74,35 @@ Ayoayo.prototype.play = function play(cell) {
 
   // Move to next player by toggling
   this.nextPlayer = this.nextPlayer == 0 ? 1 : 0;
+  this.emit(Ayoayo.events.SWITCH_TURN, this.nextPlayer);
+
   this.isGameOver = this.checkGameOver();
   if (this.isGameOver) {
     this.winner = this.captured[0] > this.captured[1] ? 0 : 1;
+    this.emit(Ayoayo.events.GAME_OVER, this.winner);
   }
+
+  this.emit(Ayoayo.events.END_TURN);
+};
+
+Ayoayo.prototype.moveToNextPosition = function moveToNextPosition(row, cell) {
+  const nextPosition = Ayoayo.next(row, cell);
+  this.emit(Ayoayo.events.MOVE_TO, [row, cell], nextPosition);
+  return nextPosition;
+};
+
+Ayoayo.prototype.captureCell = function captureCell(numSeedsInHand, row, cell) {
+  const capturer = numSeedsInHand == 0 ? this.nextPlayer : row;
+  this.captured[capturer] += 4;
+  this.board[row][cell] = 0;
+  this.emit(Ayoayo.events.CAPTURE, row, cell, capturer);
+};
+
+Ayoayo.prototype.pickupSeeds = function pickupSeeds(row, cell) {
+  const numSeedsInHand = this.board[row][cell];
+  this.board[row][cell] = 0;
+  this.emit(Ayoayo.events.PICKUP_SEEDS, row, cell);
+  return numSeedsInHand;
 };
 
 // Returns true if all the cells belonging to the next player are empty
