@@ -22,6 +22,7 @@ const Ayoayo = require('../ayoayo');
   });
 
   initializeSeeds();
+  requestAnimationFrame(handleEventQueue);
 
   function onClickNewGame() {
     game = new Ayoayo();
@@ -29,6 +30,7 @@ const Ayoayo = require('../ayoayo');
     game.on(Ayoayo.events.MOVE_TO, onMoveTo);
     game.on(Ayoayo.events.DROP_SEED, onDropSeed);
     game.on(Ayoayo.events.END_TURN, onEndTurn);
+    game.on(Ayoayo.events.SWITCH_TURN, onSwitchTurn);
 
     players.forEach((player) => {
       player.style.display = 'block';
@@ -133,38 +135,35 @@ const Ayoayo = require('../ayoayo');
 
   function onEndTurn(...args) {
     eventQueue.push({ type: Ayoayo.events.END_TURN, args });
-    requestAnimationFrame(handleEventQueue);
-    console.log(eventQueue);
   }
 
-  const eventDurations = {
-    [Ayoayo.events.PICKUP_SEEDS]: 250,
-    [Ayoayo.events.MOVE_TO]: 250,
-    [Ayoayo.events.DROP_SEED]: 250,
-  };
+  function onSwitchTurn(...args) {
+    eventQueue.push({ type: Ayoayo.events.SWITCH_TURN, args });
+  }
 
   const eventTypeToHandler = {
     [Ayoayo.events.PICKUP_SEEDS]: handlePickupSeedsEvent,
     [Ayoayo.events.MOVE_TO]: handleMoveToEvent,
     [Ayoayo.events.DROP_SEED]: handleDropSeedEvent,
+    [Ayoayo.events.SWITCH_TURN]: handleSwitchTurnEvent,
   };
+
+  const DEFAULT_EVENT_DURATION = 250;
 
   function handleEventQueue(time) {
     if (!currentEvent) {
-      currentEvent = eventQueue.shift();
-      if (!currentEvent) {
+      if (eventQueue.length == 0) {
         requestAnimationFrame(handleEventQueue);
         return;
       }
 
+      currentEvent = eventQueue.shift();
       currentEvent.start = time;
-      console.log(currentEvent, time);
       requestAnimationFrame(handleEventQueue);
       return;
     }
 
-    const fractionDone =
-      (time - currentEvent.start) / (eventDurations[currentEvent.type] || 250);
+    const fractionDone = (time - currentEvent.start) / DEFAULT_EVENT_DURATION;
 
     if (fractionDone > 1) {
       currentEvent = null;
@@ -175,6 +174,8 @@ const Ayoayo = require('../ayoayo');
     const handler = eventTypeToHandler[currentEvent.type];
     if (handler) {
       handler(currentEvent, fractionDone);
+    } else {
+      console.log(currentEvent);
     }
 
     requestAnimationFrame(handleEventQueue);
@@ -239,5 +240,9 @@ const Ayoayo = require('../ayoayo');
       pitSummary.textContent = `${Number(pitSummary.textContent) + 1}`;
       droppedNextSeed = true;
     }
+  }
+
+  function handleSwitchTurnEvent() {
+    updateTurn();
   }
 })();
