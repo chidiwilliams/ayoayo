@@ -95,6 +95,16 @@ button {
   color: #ffffff;
 }
 
+.hand {
+  position: absolute;
+  top: 135px;
+  left: 42px;
+  background: none;
+  pointer-events: none;
+  z-index: 2;
+  border: 1px solid #f00;
+}
+
 .side.disabled .pit {
   cursor: not-allowed;
 }
@@ -118,9 +128,9 @@ button {
 }
 
 .seed {
-  height: 15px;
-  width: 30px;
-  border-radius: 15px;
+  height: 20px;
+  width: 25px;
+  border-radius: 10px;
   background: #e5edff;
   border: 2px solid var(--secondary-color);
   position: absolute;
@@ -154,13 +164,4 @@ button {
 
 .player .captured {
   height: 70px;
-}
-
-.hand {
-  position: absolute;
-  top: 135px;
-  left: 42px;
-  background: none;
-  pointer-events: none;
-  z-index: 2;
 }

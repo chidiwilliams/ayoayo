@@ -8,6 +8,7 @@ const Ayoayo = require('../ayoayo');
   const noGamePadding = document.querySelector('.no-game-padding');
   const turnBadges = document.querySelectorAll('.turn-badge');
   const hand = document.querySelector('.hand');
+  const carrier = hand.querySelector('.carrier');
   let currentEvent;
   let eventQueue = [];
 
@@ -132,11 +133,13 @@ const Ayoayo = require('../ayoayo');
   function onEndTurn(...args) {
     eventQueue.push({ type: Ayoayo.events.END_TURN, args });
     requestAnimationFrame(handleEventQueue);
+    console.log(eventQueue);
   }
 
   const eventDurations = {
     [Ayoayo.events.PICKUP_SEEDS]: 250,
     [Ayoayo.events.MOVE_TO]: 250,
+    [Ayoayo.events.DROP_SEED]: 250,
   };
 
   function handleEventQueue(time) {
@@ -179,14 +182,11 @@ const Ayoayo = require('../ayoayo');
     requestAnimationFrame(handleEventQueue);
   }
 
-  function handPositionByColumn(column) {
-    return 42 + column * 106;
-  }
-
-  function handlePickupSeedsEvent(event, fractionDone) {
+  function handlePickupSeedsEvent(event, _) {
     const [row, column] = event.args;
-    hand.style.left = `${handPositionByColumn(column)}px`;
-    hand.style.top = `${45 + fractionDone * 90}px`;
+    const [handRowPosition, handColumnPosition] = getHandPosition(row, column);
+    hand.style.left = `${handColumnPosition}px`;
+    hand.style.top = `${handRowPosition}px`;
 
     const pit = document.querySelector(`.side-${row + 1} .pit-${column + 1}`);
     const seeds = pit.querySelectorAll(`.seed`);
@@ -200,17 +200,37 @@ const Ayoayo = require('../ayoayo');
     }
   }
 
-  function handleMoveToEvent(event, fractionDone) {
-    const [[, fromColumn], [, toColumn]] = event.args;
-    const fromColumnHandPosition = handPositionByColumn(fromColumn);
-    const toColumnHandPosition = handPositionByColumn(toColumn);
-    const newHandPosition =
-      fromColumnHandPosition +
-      fractionDone * (toColumnHandPosition - fromColumnHandPosition);
-    hand.style.left = `${newHandPosition}px`;
+  function getHandPosition(row, column) {
+    return [45 + row * 180, 42 + column * 106];
   }
 
-  function handleDropSeedEvent(event, fractionDone) {
-    console.log('dropping seed', event, fractionDone);
+  function handleMoveToEvent(event, fractionDone) {
+    const [[initialRow, initialColumn], [nextRow, nextColumn]] = event.args;
+    const [initialRowHandPosition, initialColumnHandPosition] = getHandPosition(
+      initialRow,
+      initialColumn,
+    );
+    const [nextRowHandPosition, nextColumnHandPosition] = getHandPosition(
+      nextRow,
+      nextColumn,
+    );
+    const currentRowHandPosition =
+      initialRowHandPosition +
+      fractionDone * (nextRowHandPosition - initialRowHandPosition);
+    const currentColumnHandPosition =
+      initialColumnHandPosition +
+      fractionDone * (nextColumnHandPosition - initialColumnHandPosition);
+    hand.style.left = `${currentColumnHandPosition}px`;
+    hand.style.top = `${currentRowHandPosition}px`;
+  }
+
+  function handleDropSeedEvent(evt, fractionDone) {
+    console.log('dropping seed', fractionDone);
+    // const atCarrierTop = 135;
+    // const toCarrierTop = 45;
+    // carrier.style.top = `${
+    //   atCarrierTop + fractionDone * (toCarrierTop - atCarrierTop)
+    // }px`;
+    // console.log(carrier.style.top);
   }
 })();
