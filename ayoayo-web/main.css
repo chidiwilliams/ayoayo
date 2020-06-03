@@ -88,7 +88,6 @@ button {
   border-radius: 45px;
   background: var(--secondary-color);
   margin: 0 8px;
-  overflow: hidden;
   position: relative;
   border: 0;
   padding: 0;
@@ -102,7 +101,15 @@ button {
   background: none;
   pointer-events: none;
   z-index: 2;
-  border: 1px solid #f00;
+  transform: scale(1.2);
+}
+
+.hand .seed {
+  -webkit-transition: all 0.3s ease-in;
+  -moz-transition: all 0.3s ease-in;
+  -ms-transition: all 0.3s ease-in;
+  -o-transition: all 0.3s ease-in;
+  transition: all 0.3s ease-in;
 }
 
 .side.disabled .pit {
@@ -125,6 +132,7 @@ button {
   -ms-transition: all 0.3s ease-in;
   -o-transition: all 0.3s ease-in;
   transition: all 0.3s ease-in;
+  border-radius: 45px;
 }
 
 .seed {
