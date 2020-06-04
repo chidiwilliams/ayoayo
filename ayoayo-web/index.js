@@ -7,10 +7,21 @@ const Ayoayo = require('../ayoayo');
   const players = document.querySelectorAll('.player');
   const noGamePadding = document.querySelector('.no-game-padding');
   const turnBadges = document.querySelectorAll('.turn-badge');
-  const hand = document.querySelector('.hand');
+  const seedingHand = document.querySelector('.hand.seeding');
+  const capturingHand = document.querySelector('.hand.capturing');
   let currentEvent;
   let eventQueue = [];
   let droppedNextSeed = false;
+
+  const eventTypeToHandler = {
+    [Ayoayo.events.PICKUP_SEEDS]: handlePickupSeedsEvent,
+    [Ayoayo.events.MOVE_TO]: handleMoveToEvent,
+    [Ayoayo.events.DROP_SEED]: handleDropSeedEvent,
+    [Ayoayo.events.SWITCH_TURN]: handleSwitchTurnEvent,
+    [Ayoayo.events.CAPTURE]: handleCaptureEvent,
+  };
+
+  const DEFAULT_EVENT_DURATION = 250;
 
   newGameButton.addEventListener('click', onClickNewGame);
   document.querySelectorAll('.side .pit').forEach((pit) => {
@@ -20,8 +31,12 @@ const Ayoayo = require('../ayoayo');
     pit.addEventListener('blur', onMouseLeavePit);
     pit.addEventListener('click', onClickPit);
   });
+  document.querySelectorAll('.captured').forEach((pit) => {
+    pit.addEventListener('mouseenter', onMouseEnterPit);
+    pit.addEventListener('mouseleave', onMouseLeavePit);
+  });
 
-  initializeSeeds();
+  init();
   requestAnimationFrame(handleEventQueue);
 
   function onClickNewGame() {
@@ -29,8 +44,8 @@ const Ayoayo = require('../ayoayo');
     game.on(Ayoayo.events.PICKUP_SEEDS, onPickupSeeds);
     game.on(Ayoayo.events.MOVE_TO, onMoveTo);
     game.on(Ayoayo.events.DROP_SEED, onDropSeed);
-    game.on(Ayoayo.events.END_TURN, onEndTurn);
     game.on(Ayoayo.events.SWITCH_TURN, onSwitchTurn);
+    game.on(Ayoayo.events.CAPTURE, onCapture);
 
     players.forEach((player) => {
       player.style.display = 'block';
@@ -53,16 +68,21 @@ const Ayoayo = require('../ayoayo');
           pit.appendChild(seed);
         }
 
-        const summary = document.createElement('div');
-        summary.classList.add('pit-summary');
-        summary.textContent = String(cellCount);
-        pit.appendChild(summary);
+        appendSummary(pit, cellCount);
       });
     });
 
-    const seedsInHand = hand.querySelectorAll('.seed');
+    const seedsInHand = seedingHand.querySelectorAll('.seed');
     seedsInHand.forEach((seed) => {
-      hand.removeChild(seed);
+      seedingHand.removeChild(seed);
+    });
+
+    players.forEach((player) => {
+      const captured = player.querySelector('.captured');
+      while (captured.lastElementChild) {
+        captured.removeChild(captured.lastElementChild);
+      }
+      appendSummary(captured, 0);
     });
 
     currentEvent = null;
@@ -102,7 +122,14 @@ const Ayoayo = require('../ayoayo');
     }
   }
 
-  function initializeSeeds() {
+  function appendSummary(parent, count) {
+    const summary = document.createElement('div');
+    summary.classList.add('pit-summary');
+    summary.textContent = String(count);
+    parent.appendChild(summary);
+  }
+
+  function init() {
     const seeds = document.querySelectorAll('.seed');
     seeds.forEach((seed) => {
       styleSeed(seed);
@@ -133,22 +160,13 @@ const Ayoayo = require('../ayoayo');
     eventQueue.push({ type: Ayoayo.events.DROP_SEED, args });
   }
 
-  function onEndTurn(...args) {
-    eventQueue.push({ type: Ayoayo.events.END_TURN, args });
-  }
-
   function onSwitchTurn(...args) {
     eventQueue.push({ type: Ayoayo.events.SWITCH_TURN, args });
   }
 
-  const eventTypeToHandler = {
-    [Ayoayo.events.PICKUP_SEEDS]: handlePickupSeedsEvent,
-    [Ayoayo.events.MOVE_TO]: handleMoveToEvent,
-    [Ayoayo.events.DROP_SEED]: handleDropSeedEvent,
-    [Ayoayo.events.SWITCH_TURN]: handleSwitchTurnEvent,
-  };
-
-  const DEFAULT_EVENT_DURATION = 250;
+  function onCapture(...args) {
+    eventQueue.push({ type: Ayoayo.events.CAPTURE, args });
+  }
 
   function handleEventQueue(time) {
     if (!currentEvent) {
@@ -183,9 +201,9 @@ const Ayoayo = require('../ayoayo');
 
   function handlePickupSeedsEvent(event) {
     const [row, column] = event.args;
-    const [handRowPosition, handColumnPosition] = getHandPosition(row, column);
-    hand.style.left = `${handColumnPosition}px`;
-    hand.style.top = `${handRowPosition}px`;
+    const [handRowPosition, handColumnPosition] = getPitPosition(row, column);
+    seedingHand.style.left = `${handColumnPosition}px`;
+    seedingHand.style.top = `${handRowPosition}px`;
 
     const pit = getPitAtPosition(row, column);
     const seeds = pit.querySelectorAll(`.seed`);
@@ -193,13 +211,13 @@ const Ayoayo = require('../ayoayo');
     if (seeds.length) {
       seeds.forEach((seed) => {
         pit.removeChild(seed);
-        hand.appendChild(seed);
+        seedingHand.appendChild(seed);
       });
       pit.querySelector('.pit-summary').textContent = '0';
     }
   }
 
-  function getHandPosition(row, column) {
+  function getPitPosition(row, column) {
     return [45 + row * 180, 42 + column * 106];
   }
 
@@ -209,11 +227,11 @@ const Ayoayo = require('../ayoayo');
 
   function handleMoveToEvent(event, fractionDone) {
     const [[initialRow, initialColumn], [nextRow, nextColumn]] = event.args;
-    const [initialRowHandPosition, initialColumnHandPosition] = getHandPosition(
+    const [initialRowHandPosition, initialColumnHandPosition] = getPitPosition(
       initialRow,
       initialColumn,
     );
-    const [nextRowHandPosition, nextColumnHandPosition] = getHandPosition(
+    const [nextRowHandPosition, nextColumnHandPosition] = getPitPosition(
       nextRow,
       nextColumn,
     );
@@ -223,16 +241,35 @@ const Ayoayo = require('../ayoayo');
     const currentColumnHandPosition =
       initialColumnHandPosition +
       fractionDone * (nextColumnHandPosition - initialColumnHandPosition);
-    hand.style.left = `${currentColumnHandPosition}px`;
-    hand.style.top = `${currentRowHandPosition}px`;
+    seedingHand.style.left = `${currentColumnHandPosition}px`;
+    seedingHand.style.top = `${currentRowHandPosition}px`;
 
+    // Reset dropped seed status
     droppedNextSeed = false;
+
+    // Reset captured seeds status
+    // Transfer seeds from capturing hand to capture store
+    const seedsInCapturingHand = capturingHand.querySelectorAll('.seed');
+    const playerThatCaptured = capturingHand.style.top[0] == '-' ? 1 : 2;
+    const captureStore = document.querySelector(
+      `.player-${playerThatCaptured} .captured`,
+    );
+
+    const pitSummary = captureStore.querySelector('.pit-summary');
+    pitSummary.textContent = `${
+      Number(pitSummary.textContent) + seedsInCapturingHand.length
+    }`;
+
+    seedsInCapturingHand.forEach((seed) => {
+      capturingHand.removeChild(seed);
+      captureStore.appendChild(seed);
+    });
   }
 
   function handleDropSeedEvent(event) {
     if (!droppedNextSeed) {
-      const firstSeedInHand = hand.querySelector('.seed');
-      hand.removeChild(firstSeedInHand);
+      const firstSeedInHand = seedingHand.querySelector('.seed');
+      seedingHand.removeChild(firstSeedInHand);
       const [row, column] = event.args;
       const pit = getPitAtPosition(row, column);
       pit.appendChild(firstSeedInHand);
@@ -244,5 +281,41 @@ const Ayoayo = require('../ayoayo');
 
   function handleSwitchTurnEvent() {
     updateTurn();
+  }
+
+  function handleCaptureEvent(event, fractionDone) {
+    const [row, column, capturingPlayer] = event.args;
+
+    const pit = getPitAtPosition(row, column);
+    const seedsInPit = pit.querySelectorAll('.seed');
+    seedsInPit.forEach((seed) => {
+      pit.removeChild(seed);
+      capturingHand.appendChild(seed);
+    });
+
+    const [capturedPitRowPosition, capturedPitColumnPosition] = getPitPosition(
+      row,
+      column,
+    );
+    const [
+      captureStoreRowPosition,
+      captureStoreColumnPosition,
+    ] = getCaptureStorePosition(capturingPlayer + 1);
+
+    capturingHand.style.top = `${
+      capturedPitRowPosition +
+      fractionDone * (captureStoreRowPosition - capturedPitRowPosition)
+    }px`;
+    capturingHand.style.left = `${
+      capturedPitColumnPosition +
+      fractionDone * (captureStoreColumnPosition - capturedPitColumnPosition)
+    }px`;
+
+    const pitSummary = pit.querySelector('.pit-summary');
+    pitSummary.textContent = '0';
+  }
+
+  function getCaptureStorePosition(player) {
+    return [-90 + (player - 1) * 450, 315];
   }
 })();

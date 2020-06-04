@@ -82,7 +82,8 @@ button {
 }
 
 .pit,
-.hand {
+.hand,
+.captured {
   width: 90px;
   height: 90px;
   border-radius: 45px;
@@ -116,7 +117,7 @@ button {
   cursor: not-allowed;
 }
 
-.pit .pit-summary {
+.pit-summary {
   top: 0;
   width: 90px;
   height: 90px;
@@ -171,5 +172,6 @@ button {
 }
 
 .player .captured {
-  height: 70px;
+  background: 0;
+  margin: auto;
 }
