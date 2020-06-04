@@ -21,7 +21,6 @@ Ayoayo.events = {
   MOVE_TO: 'move_to',
   PICKUP_SEEDS: 'pickup_seeds',
   CAPTURE: 'capture',
-  END_TURN: 'end_turn',
 };
 
 util.inherits(Ayoayo, events.EventEmitter);
@@ -81,8 +80,6 @@ Ayoayo.prototype.play = function play(cell) {
     this.winner = this.captured[0] > this.captured[1] ? 0 : 1;
     this.emit(Ayoayo.events.GAME_OVER, this.winner);
   }
-
-  this.emit(Ayoayo.events.END_TURN);
 };
 
 Ayoayo.prototype.moveToNextPosition = function moveToNextPosition(row, cell) {
