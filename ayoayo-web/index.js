@@ -40,12 +40,20 @@ const Ayoayo = require('../ayoayo');
   requestAnimationFrame(handleEventQueue);
 
   function onClickNewGame() {
+    const onPickupSeeds = onGameEvent(Ayoayo.events.PICKUP_SEEDS);
+    const onMoveTo = onGameEvent(Ayoayo.events.MOVE_TO);
+    const onDropSeed = onGameEvent(Ayoayo.events.DROP_SEED);
+    const onSwitchTurn = onGameEvent(Ayoayo.events.SWITCH_TURN);
+    const onCapture = onGameEvent(Ayoayo.events.CAPTURE);
+    const onGameOver = onGameEvent(Ayoayo.events.GAME_OVER);
+
     game = new Ayoayo();
     game.on(Ayoayo.events.PICKUP_SEEDS, onPickupSeeds);
     game.on(Ayoayo.events.MOVE_TO, onMoveTo);
     game.on(Ayoayo.events.DROP_SEED, onDropSeed);
     game.on(Ayoayo.events.SWITCH_TURN, onSwitchTurn);
     game.on(Ayoayo.events.CAPTURE, onCapture);
+    game.on(Ayoayo.events.GAME_OVER, onGameOver);
 
     players.forEach((player) => {
       player.style.display = 'block';
@@ -148,24 +156,10 @@ const Ayoayo = require('../ayoayo');
     }
   }
 
-  function onPickupSeeds(...args) {
-    eventQueue.push({ type: Ayoayo.events.PICKUP_SEEDS, args });
-  }
-
-  function onMoveTo(...args) {
-    eventQueue.push({ type: Ayoayo.events.MOVE_TO, args });
-  }
-
-  function onDropSeed(...args) {
-    eventQueue.push({ type: Ayoayo.events.DROP_SEED, args });
-  }
-
-  function onSwitchTurn(...args) {
-    eventQueue.push({ type: Ayoayo.events.SWITCH_TURN, args });
-  }
-
-  function onCapture(...args) {
-    eventQueue.push({ type: Ayoayo.events.CAPTURE, args });
+  function onGameEvent(type) {
+    return function (...args) {
+      eventQueue.push({ type, args });
+    };
   }
 
   function handleEventQueue(time) {
@@ -190,11 +184,7 @@ const Ayoayo = require('../ayoayo');
     }
 
     const handler = eventTypeToHandler[currentEvent.type];
-    if (handler) {
-      handler(currentEvent, fractionDone);
-    } else {
-      console.log(currentEvent);
-    }
+    handler(currentEvent, fractionDone);
 
     requestAnimationFrame(handleEventQueue);
   }
