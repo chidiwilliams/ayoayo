@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 const Ayoayo = require('.');
 
 describe('Ayoayo', function () {
@@ -19,16 +19,23 @@ describe('Ayoayo', function () {
     ayoayo.play(4);
     ayoayo.play(4);
     ayoayo.play(2);
-    ayoayo.play(2);
+    ayoayo.play(1);
     ayoayo.play(0);
+    ayoayo.play(3);
+    ayoayo.play(5);
+    ayoayo.play(5);
+    ayoayo.play(5);
+    ayoayo.play(1);
+    ayoayo.play(3);
     ayoayo.play(0);
+    ayoayo.play(1);
 
     assert.deepEqual(ayoayo.board, [
       [0, 0, 0, 0, 0, 0],
-      [0, 1, 1, 0, 1, 1],
+      [0, 0, 0, 0, 0, 0],
     ]);
-    assert.deepEqual(ayoayo.captured, [24, 20]);
+    assert.deepEqual(ayoayo.captured, [24, 24]);
     assert.equal(ayoayo.isGameOver, true);
-    assert.equal(ayoayo.winner, 0);
+    assert.equal(ayoayo.winner, -1);
   });
 });
