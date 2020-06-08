@@ -12,6 +12,8 @@ body {
 :root {
   --primary-color: #f39c12;
   --secondary-color: #d35400;
+  --background-color: #297fa2;
+  --background-darker-transparent-color: #0f4a6399;
 }
 
 body {
@@ -25,7 +27,7 @@ header {
   display: flex;
   min-width: 720px;
   width: 720px;
-  margin: 60px auto;
+  margin: 40px auto;
   align-items: center;
   height: 75px;
 }
@@ -55,12 +57,12 @@ button {
 }
 
 .no-game-padding {
-  height: 105px;
+  height: 125px;
 }
 
 .game {
   width: 720px;
-  margin: auto;
+  margin: 0 auto 50px;
   display: flex;
   flex-direction: column;
 }
@@ -113,7 +115,7 @@ button {
   transition: all 0.3s ease-in;
 }
 
-.side.disabled .pit {
+.pit.disabled {
   cursor: not-allowed;
 }
 
@@ -134,6 +136,10 @@ button {
   -o-transition: all 0.3s ease-in;
   transition: all 0.3s ease-in;
   border-radius: 45px;
+}
+
+.captured .pit-summary {
+  background: var(--background-darker-transparent-color);
 }
 
 .seed {

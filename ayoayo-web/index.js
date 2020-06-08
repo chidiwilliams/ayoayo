@@ -13,12 +13,15 @@ const Ayoayo = require('../ayoayo');
   let eventQueue = [];
   let droppedNextSeed = false;
 
+  // TODO: Disable all buttons during event handling
+
   const eventTypeToHandler = {
     [Ayoayo.events.PICKUP_SEEDS]: handlePickupSeedsEvent,
     [Ayoayo.events.MOVE_TO]: handleMoveToEvent,
     [Ayoayo.events.DROP_SEED]: handleDropSeedEvent,
     [Ayoayo.events.SWITCH_TURN]: handleSwitchTurnEvent,
     [Ayoayo.events.CAPTURE]: handleCaptureEvent,
+    [Ayoayo.events.GAME_OVER]: handleGameOverEvent,
   };
 
   const DEFAULT_EVENT_DURATION = 250;
@@ -60,42 +63,51 @@ const Ayoayo = require('../ayoayo');
     });
     noGamePadding.style.display = 'none';
 
-    updateTurn();
-
-    game.board.forEach((row, rowIndex) => {
-      row.forEach((cellCount, cellIndex) => {
-        const pit = sides[rowIndex].children.item(cellIndex);
-        while (pit.lastElementChild) {
-          pit.removeChild(pit.lastElementChild);
-        }
-
-        for (let i = 0; i < cellCount; i++) {
-          const seed = document.createElement('div');
-          seed.classList.add('seed');
-          styleSeed(seed);
-          pit.appendChild(seed);
-        }
-
-        appendSummary(pit, cellCount);
-      });
-    });
-
-    const seedsInHand = seedingHand.querySelectorAll('.seed');
-    seedsInHand.forEach((seed) => {
-      seedingHand.removeChild(seed);
-    });
-
-    players.forEach((player) => {
-      const captured = player.querySelector('.captured');
-      while (captured.lastElementChild) {
-        captured.removeChild(captured.lastElementChild);
-      }
-      appendSummary(captured, 0);
-    });
+    initDisplay(game);
 
     currentEvent = null;
     eventQueue = [];
     droppedNextSeed = false;
+  }
+
+  function initDisplay(game) {
+    // Set in-game seeds
+    game.board.forEach((row, rowIndex) => {
+      row.forEach((cellCount, cellIndex) => {
+        const pit = sides[rowIndex].children.item(cellIndex);
+        initSeedStore(pit, cellCount);
+      });
+    });
+
+    // Set captured seeds
+    game.captured.forEach((capturedCount, index) => {
+      const captureStore = captureStoreByPlayer(index);
+      initSeedStore(captureStore, capturedCount);
+    });
+
+    // Clear seeds in hands
+    [seedingHand, capturingHand].forEach((hand) => {
+      const seedsInHand = hand.querySelectorAll('.seed');
+      seedsInHand.forEach((seed) => {
+        hand.removeChild(seed);
+      });
+    });
+
+    updateTurn();
+  }
+
+  function initSeedStore(store, count) {
+    while (store.lastElementChild) {
+      store.removeChild(store.lastElementChild);
+    }
+
+    for (let i = 0; i < count; i++) {
+      const seed = document.createElement('div');
+      seed.classList.add('seed');
+      styleSeed(seed);
+      store.appendChild(seed);
+    }
+    appendSummary(store, count);
   }
 
   function updateTurn() {
@@ -104,6 +116,20 @@ const Ayoayo = require('../ayoayo');
 
     turnBadges.item(nextPlayer).style.display = 'inline-block';
     turnBadges.item(otherPlayer).style.display = 'none';
+
+    game.board[otherPlayer].forEach((_cell, cellIndex) => {
+      const pit = getPitAtPosition(otherPlayer, cellIndex);
+      pit.classList.add('disabled');
+    });
+
+    game.board[otherPlayer].forEach((_cell, cellIndex) => {
+      const pit = getPitAtPosition(nextPlayer, cellIndex);
+      if (game.permissibleMoves.includes(cellIndex)) {
+        pit.classList.remove('disabled');
+      } else {
+        pit.classList.add('disabled');
+      }
+    });
 
     sides.item(nextPlayer).classList.remove('disabled');
     sides.item(otherPlayer).classList.add('disabled');
@@ -145,8 +171,7 @@ const Ayoayo = require('../ayoayo');
   }
 
   function onClickPit(evt) {
-    const sideElement = evt.currentTarget.parentElement;
-    if (game && !sideElement.classList.contains('disabled')) {
+    if (game && !evt.currentTarget.classList.contains('disabled')) {
       const classList = evt.currentTarget.classList.toString().split(' ');
       const idxClassName = classList.find((className) =>
         className.includes('pit-'),
@@ -171,8 +196,6 @@ const Ayoayo = require('../ayoayo');
 
       currentEvent = eventQueue.shift();
       currentEvent.start = time;
-      requestAnimationFrame(handleEventQueue);
-      return;
     }
 
     const fractionDone = (time - currentEvent.start) / DEFAULT_EVENT_DURATION;
@@ -237,23 +260,25 @@ const Ayoayo = require('../ayoayo');
     // Reset dropped seed status
     droppedNextSeed = false;
 
-    // Reset captured seeds status
-    // Transfer seeds from capturing hand to capture store
-    const seedsInCapturingHand = capturingHand.querySelectorAll('.seed');
-    const playerThatCaptured = capturingHand.style.top[0] == '-' ? 1 : 2;
-    const captureStore = document.querySelector(
-      `.player-${playerThatCaptured} .captured`,
-    );
+    finishCapture();
+  }
 
-    const pitSummary = captureStore.querySelector('.pit-summary');
-    pitSummary.textContent = `${
-      Number(pitSummary.textContent) + seedsInCapturingHand.length
-    }`;
+  // Reset captured seeds status
+  // Transfer seeds from capturing hand to capture store
+  function finishCapture() {
+    const seedsInCapturingHand = capturingHand.querySelectorAll('.seed');
+    const playerThatCaptured = capturingHand.style.top[0] == '-' ? 0 : 1;
+    const captureStore = captureStoreByPlayer(playerThatCaptured);
 
     seedsInCapturingHand.forEach((seed) => {
       capturingHand.removeChild(seed);
       captureStore.appendChild(seed);
     });
+
+    const pitSummary = captureStore.querySelector('.pit-summary');
+    pitSummary.textContent = `${
+      Number(pitSummary.textContent) + seedsInCapturingHand.length
+    }`;
   }
 
   function handleDropSeedEvent(event) {
@@ -273,7 +298,15 @@ const Ayoayo = require('../ayoayo');
     updateTurn();
   }
 
+  function captureStoreByPlayer(player) {
+    return document.querySelector(`.player-${player + 1} .captured`);
+  }
+
   function handleCaptureEvent(event, fractionDone) {
+    if (fractionDone == 0) {
+      finishCapture();
+    }
+
     const [row, column, capturingPlayer] = event.args;
 
     const pit = getPitAtPosition(row, column);
@@ -303,6 +336,10 @@ const Ayoayo = require('../ayoayo');
 
     const pitSummary = pit.querySelector('.pit-summary');
     pitSummary.textContent = '0';
+  }
+
+  function handleGameOverEvent(_event, _fractionDone) {
+    finishCapture();
   }
 
   function getCaptureStorePosition(player) {
