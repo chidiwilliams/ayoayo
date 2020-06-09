@@ -9,10 +9,9 @@ const Ayoayo = require('../ayoayo');
   const seedingHand = document.querySelector('.hand.seeding');
   const capturingHand = document.querySelector('.hand.capturing');
   const winnerBadges = document.querySelectorAll('.winner-badge');
+  const pits = document.querySelectorAll('.pit');
   let currentEvent;
   let eventQueue = [];
-
-  // TODO: Disable all buttons during event handling
 
   const eventTypeToHandler = {
     [Ayoayo.events.PICKUP_SEEDS]: handlePickupSeedsEvent,
@@ -96,7 +95,7 @@ const Ayoayo = require('../ayoayo');
     });
 
     updateTurnBadges();
-    disableUnplayablePits();
+    enableOnlyPermissiblePits();
   }
 
   function initSeedStore(store, count) {
@@ -113,7 +112,7 @@ const Ayoayo = require('../ayoayo');
     appendSummary(store, count);
   }
 
-  function disableUnplayablePits() {
+  function enableOnlyPermissiblePits() {
     const nextPlayer = game.nextPlayer;
     const otherPlayer = Ayoayo.togglePlayer(game.nextPlayer);
 
@@ -206,10 +205,20 @@ const Ayoayo = require('../ayoayo');
     const fractionDone = (time - currentEvent.start) / DEFAULT_EVENT_DURATION;
 
     if (fractionDone > 1) {
+      // End of animation. Enable permissible pits.
+      if (eventQueue.length == 0) {
+        enableOnlyPermissiblePits();
+      }
+
       currentEvent = null;
       requestAnimationFrame(handleEventQueue);
       return;
     }
+
+    // Disable all pits during animations
+    pits.forEach((pit) => {
+      pit.classList.add('disabled');
+    });
 
     const handler = eventTypeToHandler[currentEvent.type];
     handler(currentEvent, fractionDone);
@@ -298,7 +307,6 @@ const Ayoayo = require('../ayoayo');
   function handleSwitchTurnEvent(_event, fractionDone) {
     if (fractionDone == 0) {
       updateTurnBadges();
-      disableUnplayablePits();
     }
   }
 
@@ -345,8 +353,6 @@ const Ayoayo = require('../ayoayo');
   function handleGameOverEvent(event, fractionDone) {
     if (fractionDone == 0) {
       finishCapture();
-
-      disableUnplayablePits();
 
       const [winner] = event.args;
 
