@@ -161,7 +161,8 @@ button {
   display: none;
 }
 
-.player .turn-badge {
+.player .turn-badge,
+.player .winner-badge {
   font-size: 14px;
   font-style: italic;
   line-height: 12px;
@@ -169,6 +170,7 @@ button {
   margin: 3.5px 10px;
   position: absolute;
   font-weight: 400;
+  display: none;
 }
 
 .player .player-name {
