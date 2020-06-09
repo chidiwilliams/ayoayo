@@ -135,7 +135,7 @@ Ayoayo.relaySow = function relaySow(
 };
 
 Ayoayo.togglePlayer = function togglePlayer(player) {
-  return player == 0 ? 1 : 0;
+  return (player + 1) % 2;
 };
 
 // Returns a list of all possible cells the next player can play.
