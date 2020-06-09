@@ -1,6 +1,6 @@
 # ayoayo-cli
 
-CLI application for interacting with [Ayoayo](https://github.com/chidiwilliams/ayoayo/tree/master/ayoayo).
+CLI application using [Ayoayo](https://github.com/chidiwilliams/ayoayo/tree/master/ayoayo).
 
 ```shellscript
  █████  ██    ██  ██████   █████  ██    ██  ██████
