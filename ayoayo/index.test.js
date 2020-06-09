@@ -47,3 +47,7 @@ tap.test('should throw an error if trying to play an empty cell', function (t) {
   t.throws(() => ayoayo.play(3));
   t.end();
 });
+
+tap.todo('player 2 winning game');
+
+tap.todo('draw game');
