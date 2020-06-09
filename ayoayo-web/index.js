@@ -1,4 +1,4 @@
-const Ayoayo = require('../ayoayo');
+const Ayoayo = require('@chidiwilliams/ayoayo');
 
 (function () {
   let game;
