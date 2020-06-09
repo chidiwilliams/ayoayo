@@ -4,14 +4,14 @@
   "main": "index.js",
   "description": "Implementation of Ayoayo game",
   "scripts": {
-    "test": "mocha *.test.js",
-    "prepublishOnly": "npm run test"
+    "test": "tap",
+    "prepublishOnly": "npm run test",
+    "coverage": "tap --coverage-report=html"
   },
   "author": "Chidi Williams",
   "license": "MIT",
-  "dependencies": {},
   "devDependencies": {
-    "mocha": "^7.2.0"
+    "tap": "^14.10.7"
   },
   "repository": {
     "type": "git",
