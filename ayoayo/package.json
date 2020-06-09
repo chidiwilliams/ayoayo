@@ -4,7 +4,8 @@
   "main": "index.js",
   "description": "Implementation of Ayoayo game",
   "scripts": {
-    "test": "mocha *.test.js"
+    "test": "mocha *.test.js",
+    "prepublishOnly": "npm run test"
   },
   "author": "Chidi Williams",
   "license": "MIT",
