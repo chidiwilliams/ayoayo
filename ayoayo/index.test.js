@@ -5,31 +5,35 @@ tap.test('should finish with the correct board and captured values', function (
   t,
 ) {
   const ayoayo = new Ayoayo();
-  ayoayo.play(0);
-  ayoayo.play(2);
-  ayoayo.play(4);
-  ayoayo.play(2);
-  ayoayo.play(0);
-  ayoayo.play(0);
-  ayoayo.play(2);
-  ayoayo.play(0);
-  ayoayo.play(5);
-  ayoayo.play(2);
-  ayoayo.play(5);
-  ayoayo.play(3);
-  ayoayo.play(4);
-  ayoayo.play(4);
-  ayoayo.play(2);
-  ayoayo.play(1);
-  ayoayo.play(0);
-  ayoayo.play(3);
-  ayoayo.play(5);
-  ayoayo.play(5);
-  ayoayo.play(5);
-  ayoayo.play(1);
-  ayoayo.play(3);
-  ayoayo.play(0);
-  ayoayo.play(1);
+  const plays = [
+    0,
+    2,
+    4,
+    2,
+    0,
+    0,
+    2,
+    0,
+    5,
+    2,
+    5,
+    3,
+    4,
+    4,
+    2,
+    1,
+    0,
+    3,
+    5,
+    5,
+    5,
+    1,
+    3,
+    0,
+    1,
+  ];
+
+  plays.forEach((play) => ayoayo.play(play));
 
   t.deepEqual(ayoayo.board, [
     [0, 0, 0, 0, 0, 0],
