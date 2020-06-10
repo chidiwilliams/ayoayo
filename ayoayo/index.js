@@ -1,5 +1,6 @@
 const util = require('util');
 const events = require('events');
+const minimax = require('./minimax');
 
 function Ayoayo() {
   this.board = [
@@ -73,6 +74,18 @@ Ayoayo.prototype.play = function play(cell) {
     this.winner = Ayoayo.getWinner(this.captured);
     this.emit(Ayoayo.events.GAME_OVER, this.winner);
   }
+};
+
+// Returns a copy of the game state.
+// Event listeners are not copied.
+Ayoayo.prototype.clone = function clone() {
+  const clone = new Ayoayo();
+  clone.winner = this.winner;
+  clone.captured = this.captured.slice();
+  clone.board = this.board.map((row) => row.slice());
+  clone.permissibleMoves = this.permissibleMoves.slice();
+  clone.nextPlayer = this.nextPlayer;
+  return clone;
 };
 
 // Relay-sows the seeds starting from cell and returns
@@ -157,7 +170,7 @@ Ayoayo.getPermissibleMoves = function getPermissibleMoves(board, player) {
 
   // Other player has no seeds, permit only non-empty cells that feed
   return nonEmptyCellIndexes.filter((cellIndex) => {
-    const boardCopy = [[...board[0]], [...board[1]]];
+    const boardCopy = board.map((row) => row.slice());
     const [boardIfCellPlayed] = this.relaySow(boardCopy, player, cellIndex);
     return boardIfCellPlayed[otherPlayer].some((cell) => cell > 0);
   });
@@ -186,6 +199,20 @@ Ayoayo.next = function next(row, cell) {
     return [0, Ayoayo.NUM_COLUMNS - 1];
   }
   return [1, cell + 1];
+};
+
+// Returns a new instance of Ayoayo that plays a minimax move after each call to play()
+Ayoayo.vsMinimax = function vsMinimax(depth = 5, game = new Ayoayo()) {
+  const oldPlay = game.play.bind(game);
+  game.play = function minimaxPlay(...args) {
+    oldPlay(...args);
+    if (game.winner == null) {
+      const [, moves] = minimax(game, depth, '', game.nextPlayer == 0);
+      const move = Number(moves[0]);
+      oldPlay(move);
+    }
+  };
+  return game;
 };
 
 module.exports = Ayoayo;
