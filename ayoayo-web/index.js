@@ -2,7 +2,8 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
 (function () {
   let game;
-  const newGameButton = document.querySelector('.controls button');
+  const newPVPGameButton = document.querySelector('.controls button.pvp');
+  const newAIGameButton = document.querySelector('.controls button.ai');
   const players = document.querySelectorAll('.player');
   const noGamePadding = document.querySelector('.no-game-padding');
   const turnBadges = document.querySelectorAll('.turn-badge');
@@ -24,7 +25,15 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
   const DEFAULT_EVENT_DURATION = 250;
 
-  newGameButton.addEventListener('click', onClickNewGame);
+  const onPickupSeeds = onGameEvent(Ayoayo.events.PICKUP_SEEDS);
+  const onMoveTo = onGameEvent(Ayoayo.events.MOVE_TO);
+  const onDropSeed = onGameEvent(Ayoayo.events.DROP_SEED);
+  const onSwitchTurn = onGameEvent(Ayoayo.events.SWITCH_TURN);
+  const onCapture = onGameEvent(Ayoayo.events.CAPTURE);
+  const onGameOver = onGameEvent(Ayoayo.events.GAME_OVER);
+
+  newPVPGameButton.addEventListener('click', onClickNewPVPGame);
+  newAIGameButton.addEventListener('click', onClickNewAIGame);
   document.querySelectorAll('.side .pit').forEach((pit) => {
     pit.addEventListener('mouseenter', onMouseEnterPit);
     pit.addEventListener('focus', onMouseEnterPit);
@@ -40,15 +49,17 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   init();
   requestAnimationFrame(handleEventQueue);
 
-  function onClickNewGame() {
-    const onPickupSeeds = onGameEvent(Ayoayo.events.PICKUP_SEEDS);
-    const onMoveTo = onGameEvent(Ayoayo.events.MOVE_TO);
-    const onDropSeed = onGameEvent(Ayoayo.events.DROP_SEED);
-    const onSwitchTurn = onGameEvent(Ayoayo.events.SWITCH_TURN);
-    const onCapture = onGameEvent(Ayoayo.events.CAPTURE);
-    const onGameOver = onGameEvent(Ayoayo.events.GAME_OVER);
-
+  function onClickNewPVPGame() {
     game = new Ayoayo();
+    onNewGame('Player 2');
+  }
+
+  function onClickNewAIGame() {
+    game = Ayoayo.vsMinimax();
+    onNewGame('AI');
+  }
+
+  function onNewGame(playerTwoName) {
     game.on(Ayoayo.events.PICKUP_SEEDS, onPickupSeeds);
     game.on(Ayoayo.events.MOVE_TO, onMoveTo);
     game.on(Ayoayo.events.DROP_SEED, onDropSeed);
@@ -56,8 +67,12 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     game.on(Ayoayo.events.CAPTURE, onCapture);
     game.on(Ayoayo.events.GAME_OVER, onGameOver);
 
-    players.forEach((player) => {
+    players.forEach((player, index) => {
       player.style.display = 'block';
+      if (index == 1) {
+        const playerName = player.querySelector('.player-name');
+        playerName.textContent = playerTwoName;
+      }
     });
     noGamePadding.style.display = 'none';
 

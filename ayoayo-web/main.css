@@ -54,6 +54,7 @@ button {
   border: solid 2px #ffffff;
   padding: 10px 20px;
   border-radius: 30px;
+  margin-right: 5px;
 }
 
 .no-game-padding {
@@ -173,7 +174,7 @@ button {
   display: none;
 }
 
-.player .player-name {
+.player .player-display {
   height: 25px;
   display: flex;
   align-items: center;
