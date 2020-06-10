@@ -94,7 +94,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       badge.style.display = 'none';
     });
 
-    updateTurnBadges();
+    updateTurnBadges(game.nextPlayer);
     enableOnlyPermissiblePits();
   }
 
@@ -131,10 +131,8 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     });
   }
 
-  function updateTurnBadges() {
-    const nextPlayer = game.nextPlayer;
-    const otherPlayer = Ayoayo.togglePlayer(game.nextPlayer);
-
+  function updateTurnBadges(nextPlayer) {
+    const otherPlayer = Ayoayo.togglePlayer(nextPlayer);
     turnBadges.item(nextPlayer).style.display = 'inline-block';
     turnBadges.item(otherPlayer).style.display = 'none';
   }
@@ -304,9 +302,10 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     }
   }
 
-  function handleSwitchTurnEvent(_event, fractionDone) {
+  function handleSwitchTurnEvent(event, fractionDone) {
     if (fractionDone == 0) {
-      updateTurnBadges();
+      const [nextPlayer] = event.args;
+      updateTurnBadges(nextPlayer);
     }
   }
 
