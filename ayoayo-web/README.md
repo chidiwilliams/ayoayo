@@ -1,6 +1,6 @@
 # ayoayo-web
 
-<img src="favicon.ico" width="50" />
+![Ayoayo board](./board.png)
 
 Web application using the [Ayoayo](../ayoayo/README.md) package.
 
