@@ -3,6 +3,20 @@ name: CI
 on: [push]
 
 jobs:
+  test-ayoayo:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ayoayo
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - name: npm install and build
+        run: |
+          npm ci
+          npm run test
+
   gh-pages:
     runs-on: ubuntu-latest
     defaults:
