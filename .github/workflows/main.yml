@@ -20,6 +20,6 @@ jobs:
           npm run build
       - uses: crazy-max/ghaction-github-pages@v1.2.5
         with:
-          build_dir: dist
+          build_dir: ayoayo-web/dist
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
