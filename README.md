@@ -1,7 +1,7 @@
 # ayoayo
 
-Collection of packages related to the implementation of Ayoayo.
+Collection of packages for Ayoayo.
 
-- Implementation: [README.md](./ayoayo/README.md)
-- Web: [README.md](./ayoayo-web/README.md)
-- CLI: [README.md](./ayoayo-cli/README.md)
+- [Implementation](./ayoayo)
+- [CLI](./ayoayo-cli)
+- [Web application](./ayoayo-web)
