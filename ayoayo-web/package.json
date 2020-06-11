@@ -14,7 +14,8 @@
   "license": "MIT",
   "devDependencies": {
     "gh-pages": "^2.2.0",
-    "parcel": "^1.12.4"
+    "parcel": "^1.12.4",
+    "parcel-plugin-ogimage": "^1.1.0"
   },
   "dependencies": {
     "@chidiwilliams/ayoayo": "^0.2.0"
