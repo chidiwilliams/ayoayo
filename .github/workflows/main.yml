@@ -12,10 +12,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '10.x'
-      - name: npm install and build
+      - name: Run tests
         run: |
           npm ci
-          npm run test
+          npm test
 
   gh-pages:
     runs-on: ubuntu-latest
