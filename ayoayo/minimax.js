@@ -1,5 +1,5 @@
 // Implements minimax. Returns the min/max-ed score and list of moves.
-// Score is specified as the P1's score minus P2's scored.
+// Score is specified as P1's score minus P2's score.
 function minimax(game, depth, moves, maximizing) {
   if (depth == 0 || game.winner != null) {
     return [game.captured[0] - game.captured[1], moves];
