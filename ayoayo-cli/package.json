@@ -1,16 +1,15 @@
 {
   "name": "ayoayo-cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "Play Ayoayo in the console",
   "main": "index.js",
+  "author": "Chidi Williams",
+  "license": "MIT",
   "dependencies": {
     "@chidiwilliams/ayoayo": "0.0.1"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }
