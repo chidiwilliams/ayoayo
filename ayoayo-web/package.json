@@ -1,16 +1,19 @@
 {
   "name": "ayoayo-web",
   "version": "1.0.0",
-  "description": "",
+  "description": "Ayoayo web application",
   "main": "index.js",
+  "homepage": "https://chidiwilliams.github.io/ayoayo",
   "scripts": {
     "dev": "parcel index.html",
     "build": "parcel build index.html --public-url .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "yarn run build && gh-pages -d dist"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Chidi Williams",
+  "license": "MIT",
   "devDependencies": {
+    "gh-pages": "^2.2.0",
     "parcel": "^1.12.4"
   },
   "dependencies": {
