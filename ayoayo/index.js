@@ -14,7 +14,7 @@ function Ayoayo() {
   this.permissibleMoves = [0, 1, 2, 3, 4, 5];
 }
 
-Ayoayo.NUM_COLUMNS = 6;
+Ayoayo.NUM_CELLS_PER_ROW = 6;
 
 Ayoayo.events = {
   GAME_OVER: 'game_over',
@@ -161,22 +161,20 @@ Ayoayo.getPermissibleMoves = function getPermissibleMoves(board, player) {
     .filter((cellIndex) => board[player][cellIndex] > 0);
 
   // If the other player has seeds, permit all non-empty cells
-  const otherPlayerCanPlayNextTurn = board[otherPlayer].some(
-    (cell) => cell > 0,
-  );
-  if (otherPlayerCanPlayNextTurn) {
+  const otherPlayerHasSeeds = board[otherPlayer].some((cell) => cell > 0);
+  if (otherPlayerHasSeeds) {
     return nonEmptyCellIndexes;
   }
 
   // Other player has no seeds, permit only non-empty cells that feed
   return nonEmptyCellIndexes.filter((cellIndex) => {
     const boardCopy = board.map((row) => row.slice());
-    const [boardIfCellPlayed] = this.relaySow(boardCopy, player, cellIndex);
+    const [boardIfCellPlayed] = Ayoayo.relaySow(boardCopy, player, cellIndex);
     return boardIfCellPlayed[otherPlayer].some((cell) => cell > 0);
   });
 };
 
-// Returns the winning player or -1, if draw.
+// Returns the winning player, or -1, if draw.
 Ayoayo.getWinner = function getWinner(captured) {
   if (captured[0] == captured[1]) {
     return -1;
@@ -195,8 +193,8 @@ Ayoayo.next = function next(row, cell) {
     }
     return [0, cell - 1];
   }
-  if (cell == Ayoayo.NUM_COLUMNS - 1) {
-    return [0, Ayoayo.NUM_COLUMNS - 1];
+  if (cell == Ayoayo.NUM_CELLS_PER_ROW - 1) {
+    return [0, Ayoayo.NUM_CELLS_PER_ROW - 1];
   }
   return [1, cell + 1];
 };
