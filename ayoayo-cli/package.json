@@ -6,7 +6,7 @@
   "author": "Chidi Williams",
   "license": "MIT",
   "dependencies": {
-    "@chidiwilliams/ayoayo": "0.0.1"
+    "@chidiwilliams/ayoayo": "^0.2.0"
   },
   "scripts": {
     "start": "node index.js",
