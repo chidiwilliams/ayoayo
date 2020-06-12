@@ -27,24 +27,19 @@ function requestUserInput() {
     return;
   }
 
-  readline.question(`\nPlayer ${ayoayo.nextPlayer + 1}'s turn: `, (cell) => {
+  const question = `\nPlayer ${ayoayo.nextPlayer + 1}'s turn. Pick a cell: `;
+  readline.question(question, (cell) => {
     const cellNum = Number(cell);
 
-    if (Number.isNaN(cellNum) || cellNum < 1 || cellNum > 6) {
-      readline.write(
-        'Invalid input. Please enter a cell number between 1 and 6.',
-      );
+    if (
+      Number.isNaN(cellNum) ||
+      !ayoayo.permissibleMoves.includes(cellNum - 1)
+    ) {
+      readline.write('Please enter a valid and allowed cell index.');
       requestUserInput();
       return;
     }
 
-    if (!ayoayo.cellHasSeeds(cellNum - 1)) {
-      readline.write('Invalid input. The selected cell has no seeds.');
-      requestUserInput();
-      return;
-    }
-
-    readline.write(`You picked from cell ${cellNum}\n`);
     ayoayo.play(cellNum - 1);
     requestUserInput();
   });
