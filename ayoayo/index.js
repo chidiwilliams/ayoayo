@@ -14,6 +14,7 @@ function Ayoayo() {
   this.permissibleMoves = [0, 1, 2, 3, 4, 5];
 }
 
+Ayoayo.TOTAL_NUM_SEEDS = 48;
 Ayoayo.NUM_CELLS_PER_ROW = 6;
 
 Ayoayo.events = {
@@ -53,8 +54,15 @@ Ayoayo.prototype.play = function play(cell) {
     this.nextPlayer,
   );
 
-  // Next player can't move. Capture remaining seeds. Game over.
-  if (this.permissibleMoves.length == 0) {
+  // No point proceeding if the next player has no more moves,
+  // or if someone has more than half of the seeds
+  const shouldEndGame =
+    this.permissibleMoves.length == 0 ||
+    this.captured.some((count) => count > Ayoayo.TOTAL_NUM_SEEDS / 2);
+  // Capture remaining seeds if the opponent is out of moves
+  const shouldCaptureSeedsRemainingSeeds = this.permissibleMoves.length == 0;
+
+  if (shouldCaptureSeedsRemainingSeeds) {
     let countRemaining = 0;
     this.board[this.nextPlayer].forEach((cell, index) => {
       if (cell > 0) {
@@ -69,7 +77,10 @@ Ayoayo.prototype.play = function play(cell) {
       }
     });
     this.captured[this.nextPlayer] += countRemaining;
+  }
 
+  if (shouldEndGame) {
+    this.permissibleMoves = [];
     this.isGameOver = true;
     this.winner = Ayoayo.getWinner(this.captured);
     this.emit(Ayoayo.events.GAME_OVER, this.winner);
