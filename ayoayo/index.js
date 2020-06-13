@@ -63,20 +63,20 @@ Ayoayo.prototype.play = function play(cell) {
   const shouldCaptureSeedsRemainingSeeds = this.permissibleMoves.length == 0;
 
   if (shouldCaptureSeedsRemainingSeeds) {
-    let countRemaining = 0;
-    this.board[this.nextPlayer].forEach((cell, index) => {
-      if (cell > 0) {
-        countRemaining += cell;
-        this.board[this.nextPlayer][index] = 0;
+    let numRemainingSeeds = 0;
+    this.board[this.nextPlayer] = this.board[this.nextPlayer].map(
+      (cell, index) => {
+        numRemainingSeeds += cell;
         this.emit(
           Ayoayo.events.CAPTURE,
           this.nextPlayer,
           index,
           this.nextPlayer,
         );
-      }
-    });
-    this.captured[this.nextPlayer] += countRemaining;
+        return 0;
+      },
+    );
+    this.captured[this.nextPlayer] += numRemainingSeeds;
   }
 
   if (shouldEndGame) {
@@ -187,27 +187,17 @@ Ayoayo.getPermissibleMoves = function getPermissibleMoves(board, player) {
 
 // Returns the winning player, or -1, if draw.
 Ayoayo.getWinner = function getWinner(captured) {
-  if (captured[0] == captured[1]) {
-    return -1;
-  }
-  if (captured[0] > captured[1]) {
-    return 0;
-  }
+  if (captured[0] == captured[1]) return -1;
+  if (captured[0] > captured[1]) return 0;
   return 1;
 };
 
 // Returns the next position moving counter-clockwise from the given row and cell
 Ayoayo.next = function next(row, cell) {
-  if (row == 0) {
-    if (cell == 0) {
-      return [1, 0];
-    }
-    return [0, cell - 1];
-  }
-  if (cell == Ayoayo.NUM_CELLS_PER_ROW - 1) {
-    return [0, Ayoayo.NUM_CELLS_PER_ROW - 1];
-  }
-  return [1, cell + 1];
+  if (row == 0) return cell == 0 ? [1, 0] : [0, cell - 1];
+  return cell == Ayoayo.NUM_CELLS_PER_ROW - 1
+    ? [0, Ayoayo.NUM_CELLS_PER_ROW - 1]
+    : [1, cell + 1];
 };
 
 // Returns a new instance of Ayoayo that plays a minimax move after each call to play()
