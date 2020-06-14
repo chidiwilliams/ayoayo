@@ -24,7 +24,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     [Ayoayo.events.GAME_OVER]: handleGameOverEvent,
   };
 
-  const DEFAULT_EVENT_DURATION = 250;
+  const DEFAULT_EVENT_DURATION = 200;
 
   const onPickupSeeds = onGameEvent(Ayoayo.events.PICKUP_SEEDS);
   const onMoveTo = onGameEvent(Ayoayo.events.MOVE_TO);
