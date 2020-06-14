@@ -60,9 +60,9 @@ Ayoayo.prototype.play = function play(cell) {
     this.permissibleMoves.length == 0 ||
     this.captured.some((count) => count > Ayoayo.TOTAL_NUM_SEEDS / 2);
   // Capture remaining seeds if the opponent is out of moves
-  const shouldCaptureSeedsRemainingSeeds = this.permissibleMoves.length == 0;
+  const shouldCaptureRemainingSeeds = this.permissibleMoves.length == 0;
 
-  if (shouldCaptureSeedsRemainingSeeds) {
+  if (shouldCaptureRemainingSeeds) {
     let numRemainingSeeds = 0;
     this.board[this.nextPlayer] = this.board[this.nextPlayer].map(
       (cell, index) => {
