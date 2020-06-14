@@ -11,6 +11,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   const capturingHand = document.querySelector('.hand.capturing');
   const winnerBadges = document.querySelectorAll('.winner-badge');
   const pits = document.querySelectorAll('.pit');
+  const board = document.querySelector('.board');
   let currentEvent;
   let eventQueue = [];
 
@@ -121,8 +122,8 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     for (let i = 0; i < count; i++) {
       const seed = document.createElement('div');
       seed.classList.add('seed');
-      styleSeed(seed);
       store.appendChild(seed);
+      styleSeed(seed);
     }
     appendSummary(store, count);
   }
@@ -153,9 +154,12 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function styleSeed(seed) {
+    const parentWidth = seed.parentElement.clientWidth;
+    const range = (40 * parentWidth) / 90; // by how much will the random position extend
+    const offset = (-20 * parentWidth) / 90; // from what point
     const r = Math.round(Math.random() * 360);
-    const x = Math.round(Math.random() * 40) - 20;
-    const y = Math.round(Math.random() * 40) - 20;
+    const x = Math.round(Math.random() * range) + offset;
+    const y = Math.round(Math.random() * range) + offset;
     seed.style.transform = `rotate(${r}deg) translate(${x}px, ${y}px)`;
   }
 
@@ -241,9 +245,9 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
   function handlePickupSeedsEvent(event) {
     const [row, column] = event.args;
-    const [handRowPosition, handColumnPosition] = getPitPosition(row, column);
-    seedingHand.style.left = `${handColumnPosition}px`;
-    seedingHand.style.top = `${handRowPosition}px`;
+    const [handX, handY] = getPitPosition(row, column);
+    seedingHand.style.left = `${handX}px`;
+    seedingHand.style.top = `${handY}px`;
 
     const pit = getPitAtPosition(row, column);
     const seeds = pit.querySelectorAll(`.seed`);
@@ -258,7 +262,10 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function getPitPosition(row, column) {
-    return [45 + row * 180, 42 + column * 106];
+    const pit = getPitAtPosition(row, column);
+    const pitRect = pit.getBoundingClientRect();
+    const boardRect = board.getBoundingClientRect();
+    return [pitRect.x - boardRect.x, pitRect.y - boardRect.y];
   }
 
   function getPitAtPosition(row, column) {
@@ -267,22 +274,15 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
   function handleMoveToEvent(event, fractionDone) {
     const [[initialRow, initialColumn], [nextRow, nextColumn]] = event.args;
-    const [initialRowHandPosition, initialColumnHandPosition] = getPitPosition(
+    const [initialPitX, initialPitY] = getPitPosition(
       initialRow,
       initialColumn,
     );
-    const [nextRowHandPosition, nextColumnHandPosition] = getPitPosition(
-      nextRow,
-      nextColumn,
-    );
-    const currentRowHandPosition =
-      initialRowHandPosition +
-      fractionDone * (nextRowHandPosition - initialRowHandPosition);
-    const currentColumnHandPosition =
-      initialColumnHandPosition +
-      fractionDone * (nextColumnHandPosition - initialColumnHandPosition);
-    seedingHand.style.left = `${currentColumnHandPosition}px`;
-    seedingHand.style.top = `${currentRowHandPosition}px`;
+    const [nextPitX, nextPitY] = getPitPosition(nextRow, nextColumn);
+    const currentHandX = initialPitX + fractionDone * (nextPitX - initialPitX);
+    const currentHandY = initialPitY + fractionDone * (nextPitY - initialPitY);
+    seedingHand.style.left = `${currentHandX}px`;
+    seedingHand.style.top = `${currentHandY}px`;
 
     finishCapture();
   }
@@ -342,23 +342,15 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       capturingHand.appendChild(seed);
     });
 
-    const [capturedPitRowPosition, capturedPitColumnPosition] = getPitPosition(
-      row,
-      column,
+    const [pitX, pitY] = getPitPosition(row, column);
+    const [captureStoreX, captureStoreY] = getCaptureStorePosition(
+      capturingPlayer,
     );
-    const [
-      captureStoreRowPosition,
-      captureStoreColumnPosition,
-    ] = getCaptureStorePosition(capturingPlayer);
 
-    capturingHand.style.top = `${
-      capturedPitRowPosition +
-      fractionDone * (captureStoreRowPosition - capturedPitRowPosition)
-    }px`;
-    capturingHand.style.left = `${
-      capturedPitColumnPosition +
-      fractionDone * (captureStoreColumnPosition - capturedPitColumnPosition)
-    }px`;
+    const currentHandX = pitX + fractionDone * (captureStoreX - pitX);
+    const currentHandY = pitY + fractionDone * (captureStoreY - pitY);
+    capturingHand.style.left = `${currentHandX}px`;
+    capturingHand.style.top = `${currentHandY}px`;
 
     const pitSummary = pit.querySelector('.pit-summary');
     pitSummary.textContent = '0';
@@ -389,6 +381,9 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function getCaptureStorePosition(player) {
-    return [-90 + player * 450, 315];
+    const captureStore = captureStoreByPlayer(player);
+    const captureStoreRect = captureStore.getBoundingClientRect();
+    const boardRect = board.getBoundingClientRect();
+    return [captureStoreRect.x - boardRect.x, captureStoreRect.y - boardRect.y];
   }
 })();

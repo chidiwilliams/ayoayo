@@ -12,24 +12,28 @@ body {
 :root {
   --primary-color: #f39c12;
   --secondary-color: #d35400;
+  --secondary-transparent-color: #d3540099;
   --background-color: #297fa2;
   --background-darker-transparent-color: #0f4a6399;
+  --seed-color: #e5edff;
+  --text-color: #ffffff;
 }
 
 body {
-  background: #297fa2;
+  background: var(--background-color);
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
     sans-serif, Apple Color Emoji, Segoe UI Emoji;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 header {
   display: flex;
-  min-width: 720px;
-  width: 720px;
-  margin: 40px auto;
+  padding: 0 20px;
+  margin: 40px auto 20px;
   align-items: center;
-  height: 75px;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
 }
 
 .separator {
@@ -38,45 +42,57 @@ header {
 
 h1 {
   font-weight: 200;
-  font-size: 60px;
+  font-size: 45px;
   letter-spacing: 20px;
-  margin: 0;
+  margin: 0 0 20px;
 }
 
 button {
   cursor: pointer;
 }
 
+.controls {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
 .controls button {
   font-size: 14px;
   background: none;
-  color: #ffffff;
-  border: solid 2px #ffffff;
+  color: var(--text-color);
+  border: solid 2px var(--text-color);
   padding: 10px 20px;
   border-radius: 30px;
   margin-right: 5px;
 }
 
 .no-game-padding {
-  height: 125px;
+  height: 80px;
+}
+
+@media only screen and (min-width: 760px) {
+  .no-game-padding {
+    height: 125px;
+  }
 }
 
 .game {
-  width: 720px;
   margin: 0 auto 50px;
   display: flex;
   flex-direction: column;
+  padding: 0 5px;
 }
 
 .board {
   display: flex;
   flex-direction: column;
   position: relative;
+  margin: auto;
 }
 
 .side {
   background: var(--primary-color);
-  height: 180px;
+  height: 120px;
   border: 10px solid var(--secondary-color);
   border-radius: 90px;
   display: flex;
@@ -84,18 +100,52 @@ button {
   justify-content: center;
 }
 
+@media only screen and (min-width: 760px) {
+  .side {
+    height: 180px;
+  }
+}
+
 .pit,
 .hand,
 .captured {
-  width: 90px;
-  height: 90px;
+  width: 45px;
+  height: 45px;
   border-radius: 45px;
   background: var(--secondary-color);
-  margin: 0 8px;
   position: relative;
   border: 0;
   padding: 0;
-  color: #ffffff;
+  color: var(--text-color);
+}
+
+.pit {
+  margin: 0 4px;
+}
+
+@media only screen and (min-width: 760px) {
+  .board {
+    width: 720px;
+  }
+
+  h1 {
+    font-size: 60px;
+  }
+
+  .pit,
+  .hand,
+  .captured {
+    width: 90px;
+    height: 90px;
+  }
+
+  .pit {
+    margin: 0 8px;
+  }
+
+  .game {
+    padding: 0 20px;
+  }
 }
 
 .hand {
@@ -122,13 +172,13 @@ button {
 
 .pit-summary {
   top: 0;
-  width: 90px;
-  height: 90px;
+  width: 45px;
+  height: 45px;
   position: absolute;
   z-index: 1;
-  background: #d3540099;
-  line-height: 90px;
-  font-size: 30px;
+  background: var(--secondary-transparent-color);
+  line-height: 45px;
+  font-size: 14px;
   font-weight: bold;
   opacity: 0%;
   -webkit-transition: all 0.3s ease-in;
@@ -139,19 +189,39 @@ button {
   border-radius: 45px;
 }
 
+@media only screen and (min-width: 760px) {
+  .pit-summary {
+    width: 90px;
+    height: 90px;
+    line-height: 90px;
+    font-size: 30px;
+  }
+}
+
 .captured .pit-summary {
   background: var(--background-darker-transparent-color);
 }
 
 .seed {
-  height: 20px;
-  width: 25px;
+  height: 13px;
+  width: 15px;
   border-radius: 10px;
-  background: #e5edff;
+  background: var(--seed-color);
   border: 2px solid var(--secondary-color);
   position: absolute;
-  top: calc(45px - 7.5px);
-  left: calc(45px - 15px);
+  /* parentWidth/2 - width/2 */
+  left: calc(22.5px - 7.5px);
+  /* parentHeight/2 - height/2 */
+  top: calc(22.5px - 6.5px);
+}
+
+@media only screen and (min-width: 760px) {
+  .seed {
+    top: calc(45px - 7.5px);
+    left: calc(45px - 15px);
+    height: 20px;
+    width: 25px;
+  }
 }
 
 .player {
