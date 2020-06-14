@@ -36,15 +36,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   newPVPGameButton.addEventListener('click', onClickNewPVPGame);
   newAIGameButton.addEventListener('click', onClickNewAIGame);
   document.querySelectorAll('.side .pit').forEach((pit) => {
-    pit.addEventListener('mouseenter', onMouseEnterPit);
-    pit.addEventListener('focus', onMouseEnterPit);
-    pit.addEventListener('mouseleave', onMouseLeavePit);
-    pit.addEventListener('blur', onMouseLeavePit);
     pit.addEventListener('click', onClickPit);
-  });
-  document.querySelectorAll('.captured').forEach((pit) => {
-    pit.addEventListener('mouseenter', onMouseEnterPit);
-    pit.addEventListener('mouseleave', onMouseLeavePit);
   });
 
   init();
@@ -161,20 +153,6 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     const x = Math.round(Math.random() * range) + offset;
     const y = Math.round(Math.random() * range) + offset;
     seed.style.transform = `rotate(${r}deg) translate(${x}px, ${y}px)`;
-  }
-
-  function onMouseEnterPit(evt) {
-    const summary = evt.target.querySelector('.pit-summary');
-    if (summary) {
-      summary.style.opacity = '100%';
-    }
-  }
-
-  function onMouseLeavePit(evt) {
-    const summary = evt.target.querySelector('.pit-summary');
-    if (summary) {
-      summary.style.opacity = '0%';
-    }
   }
 
   function appendSummary(parent, count) {

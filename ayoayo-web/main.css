@@ -11,12 +11,12 @@ body {
 
 :root {
   --primary-color: #f39c12;
-  --secondary-color: #d35400;
-  --secondary-transparent-color: #d3540099;
+  --secondary-color: #c34e00;
   --background-color: #297fa2;
-  --background-darker-transparent-color: #0f4a6399;
+  --darker-text-on-background-color: #000608;
   --seed-color: #e5edff;
   --text-color: #ffffff;
+  --text-on-primary-color: #6f2c00;
 }
 
 body {
@@ -92,8 +92,8 @@ button {
 
 .side {
   background: var(--primary-color);
-  height: 120px;
-  border: 10px solid var(--secondary-color);
+  height: 130px;
+  border: 7.5px solid var(--secondary-color);
   border-radius: 90px;
   display: flex;
   align-items: center;
@@ -103,6 +103,7 @@ button {
 @media only screen and (min-width: 760px) {
   .side {
     height: 180px;
+    border-width: 10px;
   }
 }
 
@@ -171,35 +172,26 @@ button {
 }
 
 .pit-summary {
-  top: 0;
-  width: 45px;
-  height: 45px;
+  top: -27.5px;
+  left: calc(50% - 20px);
+  min-width: 40px;
   position: absolute;
-  z-index: 1;
-  background: var(--secondary-transparent-color);
-  line-height: 45px;
-  font-size: 14px;
   font-weight: bold;
-  opacity: 0%;
-  -webkit-transition: all 0.3s ease-in;
-  -moz-transition: all 0.3s ease-in;
-  -ms-transition: all 0.3s ease-in;
-  -o-transition: all 0.3s ease-in;
-  transition: all 0.3s ease-in;
-  border-radius: 45px;
+  padding: 2.5px 5px;
+  color: var(--text-on-primary-color);
+  border-radius: 5px;
+  font-size: 14px;
 }
 
-@media only screen and (min-width: 760px) {
-  .pit-summary {
-    width: 90px;
-    height: 90px;
-    line-height: 90px;
-    font-size: 30px;
-  }
+.side-2 .pit-summary {
+  top: unset;
+  bottom: -27.5px;
 }
 
 .captured .pit-summary {
-  background: var(--background-darker-transparent-color);
+  color: var(--darker-text-on-background-color);
+  top: calc(50% - 13px);
+  left: calc(100% + 5px);
 }
 
 .seed {
@@ -207,7 +199,7 @@ button {
   width: 15px;
   border-radius: 10px;
   background: var(--seed-color);
-  border: 2px solid var(--secondary-color);
+  border: 1px solid var(--secondary-color);
   position: absolute;
   /* parentWidth/2 - width/2 */
   left: calc(22.5px - 7.5px);
@@ -221,12 +213,12 @@ button {
     left: calc(45px - 15px);
     height: 20px;
     width: 25px;
+    border-width: 2px;
   }
 }
 
 .player {
   margin: 5px 0;
-  font-size: 18px;
   text-align: center;
   font-weight: bold;
   display: none;
@@ -247,6 +239,7 @@ button {
 .player .player-display {
   height: 25px;
   display: flex;
+  font-size: 18px;
   align-items: center;
 }
 
