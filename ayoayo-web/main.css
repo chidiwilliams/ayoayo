@@ -92,7 +92,7 @@ button {
 
 .side {
   background: var(--primary-color);
-  height: 130px;
+  height: 120px;
   border: 7.5px solid var(--secondary-color);
   border-radius: 90px;
   display: flex;
