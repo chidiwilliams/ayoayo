@@ -107,6 +107,11 @@ button {
   }
 }
 
+.pit-container {
+  position: relative;
+  text-align: center;
+}
+
 .pit,
 .hand,
 .captured {

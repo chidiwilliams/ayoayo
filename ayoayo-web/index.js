@@ -7,7 +7,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   const players = document.querySelectorAll('.player');
   const noGamePadding = document.querySelector('.no-game-padding');
   const turnBadges = document.querySelectorAll('.turn-badge');
-  const seedingHand = document.querySelector('.hand.seeding');
+  const sowingHand = document.querySelector('.hand.sowing');
   const capturingHand = document.querySelector('.hand.capturing');
   const winnerBadges = document.querySelectorAll('.winner-badge');
   const pits = document.querySelectorAll('.pit');
@@ -81,6 +81,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       row.forEach((cellCount, cellIndex) => {
         const pit = getPitAtPosition(rowIndex, cellIndex);
         initSeedStore(pit, cellCount);
+        setSummaryTextContent(getPitSummary(pit), cellCount);
       });
     });
 
@@ -88,10 +89,14 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     game.captured.forEach((capturedCount, index) => {
       const captureStore = captureStoreByPlayer(index);
       initSeedStore(captureStore, capturedCount);
+      setSummaryTextContent(
+        getCaptureStoreSummary(captureStore),
+        capturedCount,
+      );
     });
 
     // Clear seeds in hands
-    [seedingHand, capturingHand].forEach((hand) => {
+    [sowingHand, capturingHand].forEach((hand) => {
       const seedsInHand = hand.querySelectorAll('.seed');
       seedsInHand.forEach((seed) => {
         hand.removeChild(seed);
@@ -107,9 +112,9 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function initSeedStore(store, count) {
-    while (store.lastElementChild) {
-      store.removeChild(store.lastElementChild);
-    }
+    store.querySelectorAll('.seed').forEach((seed) => {
+      store.removeChild(seed);
+    });
 
     for (let i = 0; i < count; i++) {
       const seed = document.createElement('div');
@@ -117,7 +122,6 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       store.appendChild(seed);
       styleSeed(seed);
     }
-    appendSummary(store, count);
   }
 
   function enableOnlyPermissiblePits() {
@@ -155,11 +159,16 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     seed.style.transform = `rotate(${r}deg) translate(${x}px, ${y}px)`;
   }
 
-  function appendSummary(parent, count) {
-    const summary = document.createElement('div');
-    summary.classList.add('pit-summary');
-    summary.textContent = String(count);
-    parent.appendChild(summary);
+  function getPitSummary(pit) {
+    return pit.parentElement.querySelector('.pit-summary');
+  }
+
+  function getCaptureStoreSummary(captureStore) {
+    return captureStore.querySelector('.pit-summary');
+  }
+
+  function setSummaryTextContent(elem, count) {
+    elem.textContent = count == 0 ? '' : String(count);
   }
 
   function init() {
@@ -221,21 +230,21 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     requestAnimationFrame(handleEventQueue);
   }
 
-  function handlePickupSeedsEvent(event) {
-    const [row, column] = event.args;
-    const [handX, handY] = getPitPosition(row, column);
-    seedingHand.style.left = `${handX}px`;
-    seedingHand.style.top = `${handY}px`;
+  function handlePickupSeedsEvent(event, fractionDone) {
+    if (fractionDone == 0) {
+      const [row, column] = event.args;
+      const [handX, handY] = getPitPosition(row, column);
+      sowingHand.style.left = `${handX}px`;
+      sowingHand.style.top = `${handY}px`;
 
-    const pit = getPitAtPosition(row, column);
-    const seeds = pit.querySelectorAll(`.seed`);
+      const pit = getPitAtPosition(row, column);
+      const seeds = pit.querySelectorAll(`.seed`);
 
-    if (seeds.length) {
       seeds.forEach((seed) => {
         pit.removeChild(seed);
-        seedingHand.appendChild(seed);
+        sowingHand.appendChild(seed);
       });
-      pit.querySelector('.pit-summary').textContent = '0';
+      setSummaryTextContent(getPitSummary(pit), 0);
     }
   }
 
@@ -259,8 +268,8 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     const [nextPitX, nextPitY] = getPitPosition(nextRow, nextColumn);
     const currentHandX = initialPitX + fractionDone * (nextPitX - initialPitX);
     const currentHandY = initialPitY + fractionDone * (nextPitY - initialPitY);
-    seedingHand.style.left = `${currentHandX}px`;
-    seedingHand.style.top = `${currentHandY}px`;
+    sowingHand.style.left = `${currentHandX}px`;
+    sowingHand.style.top = `${currentHandY}px`;
 
     finishCapture();
   }
@@ -277,21 +286,24 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
       captureStore.appendChild(seed);
     });
 
-    const pitSummary = captureStore.querySelector('.pit-summary');
-    pitSummary.textContent = `${
-      Number(pitSummary.textContent) + seedsInCapturingHand.length
-    }`;
+    const pitSummary = getCaptureStoreSummary(captureStore);
+    setSummaryTextContent(
+      pitSummary,
+      Number(pitSummary.textContent) + seedsInCapturingHand.length,
+    );
   }
 
   function handleDropSeedEvent(event, fractionDone) {
     if (fractionDone == 0) {
-      const firstSeedInHand = seedingHand.querySelector('.seed');
-      seedingHand.removeChild(firstSeedInHand);
+      const seedInHand = sowingHand.querySelector('.seed');
+      sowingHand.removeChild(seedInHand);
+
       const [row, column] = event.args;
       const pit = getPitAtPosition(row, column);
-      pit.appendChild(firstSeedInHand);
-      const pitSummary = pit.querySelector('.pit-summary');
-      pitSummary.textContent = `${Number(pitSummary.textContent) + 1}`;
+      pit.appendChild(seedInHand);
+
+      const pitSummary = getPitSummary(pit);
+      setSummaryTextContent(pitSummary, Number(pitSummary.textContent) + 1);
     }
   }
 
@@ -307,6 +319,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function handleCaptureEvent(event, fractionDone) {
+    // TODO: Comment. Multiple captures at the end
     if (fractionDone == 0) {
       finishCapture();
     }
@@ -330,8 +343,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     capturingHand.style.left = `${currentHandX}px`;
     capturingHand.style.top = `${currentHandY}px`;
 
-    const pitSummary = pit.querySelector('.pit-summary');
-    pitSummary.textContent = '0';
+    setSummaryTextContent(getPitSummary(pit), 0);
   }
 
   function handleGameOverEvent(event, fractionDone) {
