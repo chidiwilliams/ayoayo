@@ -180,12 +180,13 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
   function onClickPit(evt) {
     if (game && !evt.currentTarget.classList.contains('disabled')) {
-      const classList = evt.currentTarget.classList.toString().split(' ');
-      const idxClassName = classList.find((className) =>
-        className.includes('pit-'),
-      );
-      const cellIndex = idxClassName[4] - 1;
-      game.play(cellIndex);
+      // e.g. "3" is in index 4 in "pit-3".
+      const startIndexOfCellIndex = 4;
+      const cellIndex = evt.currentTarget.classList
+        .toString()
+        .split(' ')
+        .find((className) => className.includes('pit-'))[startIndexOfCellIndex];
+      game.play(cellIndex - 1);
     }
   }
 
@@ -271,12 +272,12 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
     sowingHand.style.left = `${currentHandX}px`;
     sowingHand.style.top = `${currentHandY}px`;
 
-    finishCapture();
+    finishLastCapture();
   }
 
   // Reset captured seeds status
   // Transfer seeds from capturing hand to capture store
-  function finishCapture() {
+  function finishLastCapture() {
     const seedsInCapturingHand = capturingHand.querySelectorAll('.seed');
     const playerThatCaptured = capturingHand.style.top[0] == '-' ? 0 : 1;
     const captureStore = captureStoreByPlayer(playerThatCaptured);
@@ -319,9 +320,10 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
   }
 
   function handleCaptureEvent(event, fractionDone) {
-    // TODO: Comment. Multiple captures at the end
+    // In the final turn, multiple captures happen consecutively
+    // and need to be cleaned up before the next one.
     if (fractionDone == 0) {
-      finishCapture();
+      finishLastCapture();
     }
 
     const [row, column, capturingPlayer] = event.args;
@@ -348,7 +350,7 @@ const Ayoayo = require('@chidiwilliams/ayoayo');
 
   function handleGameOverEvent(event, fractionDone) {
     if (fractionDone == 0) {
-      finishCapture();
+      finishLastCapture();
 
       const [winner] = event.args;
 
