@@ -200,15 +200,17 @@ Ayoayo.next = function next(row, cell) {
     : [1, cell + 1];
 };
 
-// Returns a new instance of Ayoayo that plays a minimax move after each call to play()
-Ayoayo.vsMinimax = function vsMinimax(depth = 5, game = new Ayoayo()) {
-  const oldPlay = game.play.bind(game);
+// Returns a new instance of Ayoayo that plays
+// a minimax move after each call to play()
+Ayoayo.vsMinimax = function vsMinimax(depth = 5) {
+  const game = new Ayoayo();
+  const oldPlayFunc = game.play.bind(game);
   game.play = function minimaxPlay(...args) {
-    oldPlay(...args);
+    oldPlayFunc(...args);
     if (game.winner == null) {
       const [, moves] = minimax(game, depth, '', game.nextPlayer == 0);
       const move = Number(moves[0]);
-      oldPlay(move);
+      oldPlayFunc(move);
     }
   };
   return game;

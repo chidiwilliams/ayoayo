@@ -6,43 +6,43 @@ function minimax(game, depth, moves, maximizing) {
   }
 
   if (maximizing) {
-    let maxEval = -Infinity;
+    let maxScore = -Infinity;
     let maxMoves;
     game.permissibleMoves.forEach((move) => {
-      const gameClone = game.clone();
-      gameClone.play(move);
-      const [score, nodeMoves] = minimax(
-        gameClone,
+      const gameCopy = game.clone();
+      gameCopy.play(move);
+      const [score, childMoves] = minimax(
+        gameCopy,
         depth - 1,
         moves + move,
         false,
       );
-      if (score > maxEval) {
-        maxEval = score;
-        maxMoves = nodeMoves;
+      if (score > maxScore) {
+        maxScore = score;
+        maxMoves = childMoves;
       }
     });
 
-    return [maxEval, maxMoves];
+    return [maxScore, maxMoves];
   } else {
-    let minEval = +Infinity;
+    let minScore = +Infinity;
     let minMoves;
     game.permissibleMoves.forEach((move) => {
-      const gameClone = game.clone();
-      gameClone.play(move);
-      const [score, nodeMoves] = minimax(
-        gameClone,
+      const gameCopy = game.clone();
+      gameCopy.play(move);
+      const [score, childMoves] = minimax(
+        gameCopy,
         depth - 1,
         moves + move,
         true,
       );
-      if (score < minEval) {
-        minEval = score;
-        minMoves = nodeMoves;
+      if (score < minScore) {
+        minScore = score;
+        minMoves = childMoves;
       }
     });
 
-    return [minEval, minMoves];
+    return [minScore, minMoves];
   }
 }
 
