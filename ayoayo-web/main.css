@@ -268,7 +268,3 @@ button {
   background: 0;
   margin: auto;
 }
-
-button.new-game.ai {
-  display: none;
-}
