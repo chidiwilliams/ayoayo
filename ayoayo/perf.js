@@ -58,7 +58,7 @@ function testAll() {
 
   {
     // random vs random
-    const n = 2000;
+    const n = 5000;
     const scores = [0, 0, 0];
     for (let i = 0; i < n; i++) {
       const winner = playGame(randomPlayer, randomPlayer);
